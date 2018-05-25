@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2018
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniRender", "MiniRender.csproj", "{2A255EBD-0925-4B24-9A85-8BB8D797C9C1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestScreen", "..\TestScreen\TestScreen.csproj", "{A97DBBF1-49B6-4EC6-B6B1-C870CC3FC7CA}"
+EndProject
+Global
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2A255EBD-0925-4B24-9A85-8BB8D797C9C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A255EBD-0925-4B24-9A85-8BB8D797C9C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A255EBD-0925-4B24-9A85-8BB8D797C9C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A255EBD-0925-4B24-9A85-8BB8D797C9C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A97DBBF1-49B6-4EC6-B6B1-C870CC3FC7CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A97DBBF1-49B6-4EC6-B6B1-C870CC3FC7CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A97DBBF1-49B6-4EC6-B6B1-C870CC3FC7CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A97DBBF1-49B6-4EC6-B6B1-C870CC3FC7CA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6FD28262-C687-4D04-A347-B11B0988E180}
+	EndGlobalSection
+EndGlobal
