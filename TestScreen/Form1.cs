@@ -1,4 +1,5 @@
 ﻿using MiniRender;
+using MiniRender.geom;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -130,17 +131,49 @@ namespace TestScreen
 		VertexBuffer3D vertexes;
 		IndexBuffer3D indexList;
 
+		
 		private void button1_Click(object sender, EventArgs e)
+		{
+			timerFrame.Enabled = true;
+			//render();
+		}
+
+		private void render()
 		{
 			context3D.bindVertexBuffer(vertexes);
 
-			context3D.setProgramConstantsFromMatrix();
+
+			Matrix3D mvp = new Matrix3D();
+			mvp.identity();
 
 
-			context3D.clear(49 / 255f, 77 / 255f, 121 /255f);
+			float angle = time * 3.14f / 2;
+
+			var camera = Matrix3D.lookAtLH( Mathf.sin(angle)*-5 +0.5f, 2f, Mathf.cos(angle)*-5+0.5f,
+											0.5f, 0.5f, 0,
+											0, 1, 0);
+
+			mvp.append(camera);
+
+			var perspective = Matrix3D.perspectiveOffCenterLH(-1, 1, -1.0f * 600 / 800, 1.0f * 600 / 800, 2f, 1000);
+			mvp.append(perspective);
+
+
+			context3D.setProgramConstants_MVP(mvp.transpose());//shader中是行向量，matrix3d是列向量，需要转置。
+
+
+			context3D.clear(49 / 255f, 77 / 255f, 121 / 255f);
 			context3D.drawTriangles(indexList);
 
 			context3D.present();
+			
+		}
+
+		float time = 0;
+		private void timerFrame_Tick(object sender, EventArgs e)
+		{
+			time += 0.016f;
+			render();
 		}
 	}
 }

@@ -33,7 +33,14 @@ namespace MiniRender
 				return v2;
 		}
 
-
+		public static float sin(float v)
+		{
+			return (float)Math.Sin(v);
+		}
+		public static float cos(float v)
+		{
+			return (float)Math.Cos(v);
+		}
 
 		public static float sqrt(float v)
 		{

@@ -70,12 +70,20 @@ namespace MiniRender
 			current_program3D = program;
 		}
 
+		public void setProgramConstants_MVP(geom.Matrix3D matrix3D)
+		{
+			programConstants.registers[0] = new float4(matrix3D.M00, matrix3D.M01, matrix3D.M02, matrix3D.M03);
+			programConstants.registers[1] = new float4(matrix3D.M10, matrix3D.M11, matrix3D.M12, matrix3D.M13);
+			programConstants.registers[2] = new float4(matrix3D.M20, matrix3D.M21, matrix3D.M22, matrix3D.M23);
+			programConstants.registers[3] = new float4(matrix3D.M30, matrix3D.M31, matrix3D.M32, matrix3D.M33);
+		}
+
 		public void setProgramConstantsFromMatrix()
 		{
-			programConstants.registers[0] = new float4(1, 0, 0, -0.3);
-			programConstants.registers[1] = new float4(0, 1, 0, -0.2);
-			programConstants.registers[2] = new float4(0, 0, 1, 0);
-			programConstants.registers[3] = new float4(0, 0, 0, 1);
+			//programConstants.registers[0] = new float4(1, 0, 0, -0.3f);
+			//programConstants.registers[1] = new float4(0, 1, 0, -0.2f);
+			//programConstants.registers[2] = new float4(0, 0, 1, 0);
+			//programConstants.registers[3] = new float4(0, 0, 0, 1);
 		}
 
 
@@ -191,41 +199,67 @@ namespace MiniRender
 
 				#endregion
 
+				{
+					float3 xyz1 = v1.SV_POSITION.xyz / v1.SV_POSITION.w;
+					float3 xyz2 = v2.SV_POSITION.xyz / v2.SV_POSITION.w;
+					float3 xyz3 = v3.SV_POSITION.xyz / v3.SV_POSITION.w;
+					{
+						float area = Rasterizer.TriangleDoubleArea(xyz1.xy, xyz2.xy, xyz3.xy);
+						if (area < 0)
+							continue;
+					}
+					#region 视景体外裁剪
+					{
 
-				float area = Rasterizer.TriangleDoubleArea(v1.SV_POSITION.xy, v2.SV_POSITION.xy, v3.SV_POSITION.xy);
 
+						if ((xyz1.z > 1 || xyz1.z < 0 || xyz1.x < -1 || xyz1.x > 1 || xyz1.y < -1 || xyz1.y > 1)
+							&&
+							(xyz2.z > 1 || xyz2.z < 0 || xyz2.x < -1 || xyz2.x > 1 || xyz2.y < -1 || xyz2.y > 1)
+							&&
+							(xyz3.z > 1 || xyz3.z < 0 || xyz3.x < -1 || xyz3.x > 1 || xyz3.y < -1 || xyz3.y > 1)
+							)
+						{
+							continue;
+						}
 
+					}
+					#endregion
+				}
 
-				//int totalraises;
-				//Rasterizer.Triangle(currentRenderBuffer,
-				//	v1,v2,v3
-				//	,rasters
-				//	,out totalraises
-				//	);
+				int totalraises;
+				Rasterizer.Triangle(currentRenderBuffer,
+					v1, v2, v3
+					, rasters
+					, out totalraises
+					);
 
-				//var pixels= currentRenderBuffer.getRealPixels();
-				//for (int j = 0; j < totalraises; j++)
-				//{
-				//	var r = rasters[j];
+				var pixels = currentRenderBuffer.getRealPixels();
+				for (int j = 0; j < totalraises; j++)
+				{
+					var r = rasters[j];
 
-				//	float4 oc = pixels[r.x][r.y];
-				//	float4 color = r.vsout.color;
+					float4 oc = pixels[r.x][r.y];
+					float4 color = r.vsout.color;
 
-				//	float4 final = oc * (1 - color.a) + color * color.a;
-				//	pixels[r.x][r.y] = final;
+					float4 final = oc * (1 - color.a) + color * color.a;
+					pixels[r.x][r.y] = final;
 
-				//}
+				}
 
 				#region 线框
 
-				Rasterizer.Line(currentRenderBuffer,
-					v1.SV_POSITION.xy, v2.SV_POSITION.xy, new float4(1, 1, 1, 1));
+				var linepos1 = v1.SV_POSITION / v1.SV_POSITION.w;
+				var linepos2 = v2.SV_POSITION / v2.SV_POSITION.w;
+				var linepos3 = v3.SV_POSITION / v3.SV_POSITION.w;
 
 				Rasterizer.Line(currentRenderBuffer,
-					v2.SV_POSITION.xy, v3.SV_POSITION.xy, new float4(1, 1, 1, 1));
+					linepos1.xy, linepos2.xy, new float4(1, 1, 1, 1));
 
 				Rasterizer.Line(currentRenderBuffer,
-					v3.SV_POSITION.xy, v1.SV_POSITION.xy, new float4(1, 1, 1, 1));
+					linepos2.xy, linepos3.xy, new float4(1, 1, 1, 1));
+
+				Rasterizer.Line(currentRenderBuffer,
+					linepos3.xy, linepos1.xy, new float4(1, 1, 1, 1));
 
 				#endregion
 

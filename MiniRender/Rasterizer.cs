@@ -15,8 +15,8 @@ namespace MiniRender
 		/// </summary>
 		class TriangleEdge
 		{
-			public v2f point1;
-			public v2f point2;
+			//public v2f point1;
+			//public v2f point2;
 
 			public float2 rtpos1;
 			public float2 rtpos2;
@@ -113,9 +113,9 @@ namespace MiniRender
 			 */
 			totalrasters = 0;
 
-			float2 pos1 = toRenderTargetPos(renderBuffer, p1.SV_POSITION.xy);
-			float2 pos2 = toRenderTargetPos(renderBuffer, p2.SV_POSITION.xy);
-			float2 pos3 = toRenderTargetPos(renderBuffer, p3.SV_POSITION.xy);
+			float2 pos1 = toRenderTargetPos(renderBuffer, p1.SV_POSITION.xy/p1.SV_POSITION.w);
+			float2 pos2 = toRenderTargetPos(renderBuffer, p2.SV_POSITION.xy/p2.SV_POSITION.w);
+			float2 pos3 = toRenderTargetPos(renderBuffer, p3.SV_POSITION.xy/p3.SV_POSITION.w);
 
 			float area = TriangleDoubleArea(pos1, pos2, pos3);
 			if (area == 0)
@@ -128,9 +128,9 @@ namespace MiniRender
 			int left = (int)Math.Floor(Mathf.min(Mathf.min(pos1.x, pos2.x), pos3.x));
 			int right= (int)Math.Ceiling(Mathf.max(Mathf.max(pos1.x, pos2.x), pos3.x));
 
-			TriangleEdge edge1 = new TriangleEdge() { point1 = p1, point2 = p2, rtpos1 = pos1, rtpos2 = pos2, anotherrtpos = pos3 };
-			TriangleEdge edge2 = new TriangleEdge() { point1 = p2, point2 = p3, rtpos1 = pos2, rtpos2 = pos3, anotherrtpos = pos1 };
-			TriangleEdge edge3 = new TriangleEdge() { point1 = p3, point2 = p1, rtpos1 = pos3, rtpos2 = pos1, anotherrtpos = pos2 };
+			TriangleEdge edge1 = new TriangleEdge() {  rtpos1 = pos1, rtpos2 = pos2, anotherrtpos = pos3 };
+			TriangleEdge edge2 = new TriangleEdge() {  rtpos1 = pos2, rtpos2 = pos3, anotherrtpos = pos1 };
+			TriangleEdge edge3 = new TriangleEdge() {  rtpos1 = pos3, rtpos2 = pos1, anotherrtpos = pos2 };
 
 			edge1.checkedgeattribue();
 			edge2.checkedgeattribue();
@@ -265,7 +265,7 @@ namespace MiniRender
 										p3.SV_POSITION * c / p3.SV_POSITION.w)
 										/
 										(
-										a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p2.SV_POSITION.w
+										a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
 										)
 										;
 					v2f.SV_POSITION.z = p1.SV_POSITION.z * a + p2.SV_POSITION.z * b + p3.SV_POSITION.z * c;
@@ -275,7 +275,7 @@ namespace MiniRender
 										p3.color * c / p3.SV_POSITION.w)
 										/
 										(
-										a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p2.SV_POSITION.w
+										a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
 										)
 										;
 

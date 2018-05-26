@@ -7,10 +7,7 @@ namespace MiniRender
 {
 	public struct float4
 	{
-		public float4(double x, double y, double z, double w)
-		{
-			v1 = (float)x; v2 = (float)y; v3 = (float)z; v4 = (float)w;
-		}
+		
 		public float4(float x,float y,float z,float w)
 		{
 			v1 = x;v2 = y;v3 = z;v4 = w;

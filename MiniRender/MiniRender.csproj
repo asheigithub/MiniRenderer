@@ -43,6 +43,8 @@
     <Compile Include="float2.cs" />
     <Compile Include="float3.cs" />
     <Compile Include="float4.cs" />
+    <Compile Include="geom\Matrix3D.cs" />
+    <Compile Include="geom\Vector3.cs" />
     <Compile Include="IndexBuffer3D.cs" />
     <Compile Include="IRenderTarget.cs" />
     <Compile Include="IRenderTargetAdapter.cs" />
@@ -59,5 +61,6 @@
     <Compile Include="VertexBuffer3D.cs" />
     <Compile Include="VertexShader.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

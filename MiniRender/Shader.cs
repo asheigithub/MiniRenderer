@@ -9,7 +9,7 @@ namespace MiniRender
 	{
 		internal ProgramConstants constants;
 
-		protected m4 M
+		protected m4 MVP
 		{
 			get
 			{
@@ -37,6 +37,36 @@ namespace MiniRender
 
 		}
 
+
+
+		#region 各种 float 构造函数
+
+		public float4 float4(float3 xyz, double w)
+		{
+			return new float4(xyz, (float)w);
+		}
+
+		public float4 float4(double x, double y, double z, double w)
+		{
+			return new float4((float)x, (float)y, (float)z, (float)w);
+		}
+
+		public float3 float3(float2 xy, double z)
+		{
+			return new float3(xy, (float)z);
+		}
+
+		public float3 float3(double x, double y, double z)
+		{
+			return new float3((float)x, (float)y, (float)z);
+		}
+
+		public float2 float2(double x, double y)
+		{
+			return new float2((float)x,(float)y);
+		}
+
+		#endregion
 
 	}
 }
