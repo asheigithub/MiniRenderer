@@ -31,8 +31,6 @@ namespace TestScreen
 
 			pictureBox1.Image = bitmap;
 
-
-
 			var triangles = new uint[] {
 				  2,1,0, //front face
 					3,2,0,
@@ -124,7 +122,7 @@ namespace TestScreen
 
 
 			var program3d = context3D.createProgram();
-			program3d.upload(new programs.test1.VShader());
+			program3d.upload(new programs.test1.VShader(),new programs.test1.FShader());
 			context3D.setProgram(program3d);
 		}
 
@@ -134,32 +132,46 @@ namespace TestScreen
 		
 		private void button1_Click(object sender, EventArgs e)
 		{
-			timerFrame.Enabled = true;
+			timerFrame.Enabled = !timerFrame.Enabled;
 			//render();
 		}
 
 		private void render()
 		{
+			Matrix3D _ObjectToWorld;
+			Matrix3D _WorldToObject;
+			Matrix3D _MatrixV;
+			Matrix3D _matrix_projection;
+			Matrix3D _MatrixVP;
+			Matrix3D _MatrixInvV;
+
 			context3D.bindVertexBuffer(vertexes);
 
+			context3D.setCulling(Context3DTriangleFace.NONE);
+			context3D.setDepthTest(true, Context3DCompareMode.LESS);
 
-			Matrix3D mvp = new Matrix3D();
-			mvp.identity();
+			Matrix3D mv = new Matrix3D();
+			mv.identity();
 
+
+			_ObjectToWorld = mv;
+			_WorldToObject = mv.getInvert();
 
 			float angle = time * 3.14f / 2;
-
-			var camera = Matrix3D.lookAtLH( Mathf.sin(angle)*-5 +0.5f, 2f, Mathf.cos(angle)*-5+0.5f,
+			var camera = Matrix3D.lookAtLH( Mathf.sin(angle)*-5f +0.5f, 2f, Mathf.cos(angle)*-5f+0.5f,
 											0.5f, 0.5f, 0,
 											0, 1, 0);
 
-			mvp.append(camera);
+			_MatrixV = camera;
+			_MatrixInvV = _MatrixV.getInvert();
 
-			var perspective = Matrix3D.perspectiveOffCenterLH(-1, 1, -1.0f * 600 / 800, 1.0f * 600 / 800, 2f, 1000);
-			mvp.append(perspective);
+			var perspective = Matrix3D.perspectiveOffCenterLH(-1, 1, -1.0f * 600 / 800, 1.0f * 600 / 800, 2f, 8f);
+			mv.append(perspective);
 
+			_matrix_projection = perspective;
+			_MatrixVP = _MatrixV.append(perspective);
 
-			context3D.setProgramConstants_MVP(mvp.transpose());//shader中是行向量，matrix3d是列向量，需要转置。
+			context3D.setProgramConstants_Matrices(_ObjectToWorld, _WorldToObject, _MatrixV, _matrix_projection, _MatrixVP, _MatrixInvV, true);
 
 
 			context3D.clear(49 / 255f, 77 / 255f, 121 / 255f);

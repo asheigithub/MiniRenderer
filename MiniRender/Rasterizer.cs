@@ -136,158 +136,219 @@ namespace MiniRender
 			edge2.checkedgeattribue();
 			edge3.checkedgeattribue();
 
+			//***将矩形区域扩展成2的倍数
+			if (left % 2 == 1)
+				left--;
+			if (right % 2 == 1)
+				right++;
+			if (top % 2 == 1)
+				top--;
+			if (bottom % 2 == 1)
+				bottom++;
 
 			
-			for (int i = left; i < right; i++)
+			for (int i = left; i < right; i+=2)
 			{
 				if (i < 0 || i >= renderBuffer.rt_width)
 					continue;
 
-				for (int j = top; j < bottom; j++)
+				for (int j = top; j < bottom; j+=2)
 				{
 					if (j < 0 || j >= renderBuffer.rt_height)
 						continue;
 
 					float2 pixelpositon = new float2( i+0.5f,j+0.5f );
 
-					float A = TriangleDoubleArea(edge2.rtpos1, edge2.rtpos2, pixelpositon);
-					float B = TriangleDoubleArea(edge3.rtpos1, edge3.rtpos2, pixelpositon);
-					float C = TriangleDoubleArea(edge1.rtpos1, edge1.rtpos2, pixelpositon);
+					//***检测相邻的四个像素。片段着色器阶段四个相邻像素Z形执行
 
-					if (area * A < 0 || area * B < 0 || area * C < 0)
+					float[] A = new float[4];
+					float[] B = new float[4];
+					float[] C = new float[4];
+					bool[] r_pass = new bool[4];
+
+					r_pass[0] = need_rasterize(edge1, edge2, edge3, new float2(i + 0.5f, j + 0.5f), area, out A[0], out B[0], out C[0]);
+					r_pass[1] = need_rasterize(edge1, edge2, edge3, new float2(i + 0.5f+1, j + 0.5f), area, out A[1], out B[1], out C[1]);
+					r_pass[2] = need_rasterize(edge1, edge2, edge3, new float2(i + 0.5f, j + 0.5f+1), area, out A[2], out B[2], out C[2]);
+					r_pass[3] = need_rasterize(edge1, edge2, edge3, new float2(i + 0.5f+1, j + 0.5f+1), area, out A[3], out B[3], out C[3]);
+
+					if (!(r_pass[0] || r_pass[1] || r_pass[2] || r_pass[3]))
 					{
-						//不在三角形内
 						continue;
 					}
-					//应用TOP-LEFT规则
 
-					if (A == 0)
+					for (int jj = 0; jj < 2; jj++)
 					{
-						if (B == 0)
+						for (int ii = 0; ii < 2; ii++)
 						{
-							if (!((edge2.istopedge && edge3.isleftedge) || (edge2.isleftedge && edge3.istopedge)))
-							{
-								continue;
-							}
-						}
-						else if (C == 0)
-						{
-							if (!((edge2.istopedge && edge1.isleftedge) || (edge2.isleftedge && edge1.istopedge)))
-							{
-								continue;
-							}
-						}
-						else
-						{
-							if (!(edge2.istopedge || edge2.isleftedge))
-								continue;
+							int idx = jj * 2 + ii;
+
+							//重心坐标系
+							float a = A[idx] / area;
+							float b = B[idx] / area;
+							float c = C[idx] / area;
+
+							//返回光栅化结果
+
+							var r = rasters[totalrasters];
+							r.isclippass = false;
+							r.rasterize = r_pass[idx];
+							r.x = i+ii;
+							r.y = j+jj;
+
+							v2f v2f = new v2f();
+							v2f.SV_POSITION = (p1.SV_POSITION * a / p1.SV_POSITION.w +
+												p2.SV_POSITION * b / p2.SV_POSITION.w +
+												p3.SV_POSITION * c / p3.SV_POSITION.w)
+												/
+												(
+												a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
+												)
+												;
+
+							v2f.color = (p1.color * a / p1.SV_POSITION.w +
+												p2.color * b / p2.SV_POSITION.w +
+												p3.color * c / p3.SV_POSITION.w)
+												/
+												(
+												a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
+												)
+												;
+
+							v2f.uv = (p1.uv * a / p1.SV_POSITION.w +
+												p2.uv * b / p2.SV_POSITION.w +
+												p3.uv * c / p3.SV_POSITION.w)
+												/
+												(
+												a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
+												)
+												;
+
+							v2f.worldNormal = (p1.worldNormal * a / p1.SV_POSITION.w +
+												p2.worldNormal * b / p2.SV_POSITION.w +
+												p3.worldNormal * c / p3.SV_POSITION.w)
+												/
+												(
+												a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
+												)
+												;
+
+							v2f.objNormal = (p1.objNormal * a / p1.SV_POSITION.w +
+												p2.objNormal * b / p2.SV_POSITION.w +
+												p3.objNormal * c / p3.SV_POSITION.w)
+												/
+												(
+												a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
+												)
+												;
+
+
+
+							v2f.tangent = (p1.tangent * a / p1.SV_POSITION.w +
+												p2.tangent * b / p2.SV_POSITION.w +
+												p3.tangent * c / p3.SV_POSITION.w)
+												/
+												(
+												a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
+												)
+												;
+
+							r.vsout = v2f;
+
+							totalrasters++;
+
+
+
 						}
 					}
-					if (B == 0)
-					{
-						if (A == 0)
-						{
-							if (!((edge2.istopedge && edge3.isleftedge) || (edge2.isleftedge && edge3.istopedge)))
-							{
-								continue;
-							}
-						}
-						else if (C == 0)
-						{
-							if (!((edge1.istopedge && edge3.isleftedge) || (edge1.isleftedge && edge3.istopedge)))
-							{
-								continue;
-							}
-						}
-						else
-						{
-							if (!(edge3.istopedge || edge3.isleftedge))
-								continue;
-						}
-					}
-					if (C == 0)
-					{
-						if (A == 0)
-						{
-							if (!((edge2.istopedge && edge1.isleftedge) || (edge2.isleftedge && edge1.istopedge)))
-							{
-								continue;
-							}
-						}
-						else if (B == 0)
-						{
-							if (!((edge1.istopedge && edge2.isleftedge) || (edge1.isleftedge && edge2.istopedge)))
-							{
-								continue;
-							}
-						}
-						else
-						{
-							if (!(edge1.istopedge || edge1.isleftedge))
-								continue;
-						}
-					}
-					
 
-
-					//重心坐标系
-					float a = A / area;
-					float b = B / area;
-					float c = C / area;
-
-					//返回光栅化结果
-
-					//float4 finalcolor = (p1.color * a / p1.SV_POSITION.w + 
-					//					p2.color * b / p2.SV_POSITION.w + 
-					//					p3.color * c / p3.SV_POSITION.w)
-					//					/
-					//					(
-					//					a/p1.SV_POSITION.w+b/p2.SV_POSITION.w+c/p2.SV_POSITION.w
-					//					)
-					//					;
-
-
-
-					//float4 oc = renderBuffer.getRealPixels()[i][j];
-					//float4 final = oc * (1 - finalcolor.a) + 
-					//				finalcolor * finalcolor.a;//* covarage;
-
-					//renderBuffer.getRealPixels()[i][j] = final;
-
-
-					var r = rasters[totalrasters];
-					r.x = i;
-					r.y = j;
-
-					v2f v2f = new v2f();
-					v2f.SV_POSITION= (p1.SV_POSITION * a / p1.SV_POSITION.w +
-										p2.SV_POSITION * b / p2.SV_POSITION.w +
-										p3.SV_POSITION * c / p3.SV_POSITION.w)
-										/
-										(
-										a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
-										)
-										;
-					v2f.SV_POSITION.z = p1.SV_POSITION.z * a + p2.SV_POSITION.z * b + p3.SV_POSITION.z * c;
-					
-					v2f.color = (p1.color * a / p1.SV_POSITION.w +
-										p2.color * b / p2.SV_POSITION.w +
-										p3.color * c / p3.SV_POSITION.w)
-										/
-										(
-										a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
-										)
-										;
-
-
-
-					r.vsout = v2f;
-
-					totalrasters++;
 				}
 			}
 		}
-		
+
+		private static bool need_rasterize(TriangleEdge edge1, TriangleEdge edge2, TriangleEdge edge3,float2 pixelpositon,float area ,out float A,out float B,out float C )
+		{
+
+			A = TriangleDoubleArea(edge2.rtpos1, edge2.rtpos2, pixelpositon);
+			B = TriangleDoubleArea(edge3.rtpos1, edge3.rtpos2, pixelpositon);
+			C = TriangleDoubleArea(edge1.rtpos1, edge1.rtpos2, pixelpositon);
+
+			if (area * A < 0 || area * B < 0 || area * C < 0)
+			{
+				//不在三角形内
+				return false;
+			}
+			//应用TOP-LEFT规则
+
+			if (A == 0)
+			{
+				if (B == 0)
+				{
+					if (!((edge2.istopedge && edge3.isleftedge) || (edge2.isleftedge && edge3.istopedge)))
+					{
+						return false;
+					}
+				}
+				else if (C == 0)
+				{
+					if (!((edge2.istopedge && edge1.isleftedge) || (edge2.isleftedge && edge1.istopedge)))
+					{
+						return false;
+					}
+				}
+				else
+				{
+					if (!(edge2.istopedge || edge2.isleftedge))
+						return false;
+				}
+			}
+			if (B == 0)
+			{
+				if (A == 0)
+				{
+					if (!((edge2.istopedge && edge3.isleftedge) || (edge2.isleftedge && edge3.istopedge)))
+					{
+						return false;
+					}
+				}
+				else if (C == 0)
+				{
+					if (!((edge1.istopedge && edge3.isleftedge) || (edge1.isleftedge && edge3.istopedge)))
+					{
+						return false;
+					}
+				}
+				else
+				{
+					if (!(edge3.istopedge || edge3.isleftedge))
+						return false;
+				}
+			}
+			if (C == 0)
+			{
+				if (A == 0)
+				{
+					if (!((edge2.istopedge && edge1.isleftedge) || (edge2.isleftedge && edge1.istopedge)))
+					{
+						return false;
+					}
+				}
+				else if (B == 0)
+				{
+					if (!((edge1.istopedge && edge2.isleftedge) || (edge1.isleftedge && edge2.istopedge)))
+					{
+						return false;
+					}
+				}
+				else
+				{
+					if (!(edge1.istopedge || edge1.isleftedge))
+						return false;
+				}
+			}
+
+			return true;
+		}
+
 
 
 		public static void Line( IRenderTarget renderBuffer,float2 stpos,float2 edpos , float4 linecolor )
@@ -399,6 +460,12 @@ namespace MiniRender
 			public int x;
 			public int y;
 			public v2f vsout;
+
+			//是否通过CVV裁剪
+			internal bool isclippass;
+			
+			//是否需要被光栅化
+			internal bool rasterize;
 		}
 
 	}

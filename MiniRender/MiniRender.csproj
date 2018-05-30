@@ -40,19 +40,25 @@
   <ItemGroup>
     <Compile Include="Context3D.cs" />
     <Compile Include="Context3DClearMask.cs" />
+    <Compile Include="Context3DCompareMode.cs" />
+    <Compile Include="Context3DTriangleFace.cs" />
     <Compile Include="float2.cs" />
     <Compile Include="float3.cs" />
+    <Compile Include="float3x3.cs" />
     <Compile Include="float4.cs" />
+    <Compile Include="FragementShader.cs" />
     <Compile Include="geom\Matrix3D.cs" />
+    <Compile Include="geom\Quaternion.cs" />
     <Compile Include="geom\Vector3.cs" />
     <Compile Include="IndexBuffer3D.cs" />
     <Compile Include="IRenderTarget.cs" />
     <Compile Include="IRenderTargetAdapter.cs" />
-    <Compile Include="m4.cs" />
+    <Compile Include="float4x4.cs" />
     <Compile Include="Mathf.cs" />
     <Compile Include="Program3D.cs" />
     <Compile Include="ProgramConstants.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QuadFragementUnit.cs" />
     <Compile Include="Shader.cs" />
     <Compile Include="v2f.cs" />
     <Compile Include="Rasterizer.cs" />
@@ -60,6 +66,7 @@
     <Compile Include="Vertex.cs" />
     <Compile Include="VertexBuffer3D.cs" />
     <Compile Include="VertexShader.cs" />
+    <Compile Include="ZBuffer.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

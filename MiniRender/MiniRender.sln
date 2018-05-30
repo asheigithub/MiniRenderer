@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.27703.2018
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniRender", "MiniRender.csproj", "{2A255EBD-0925-4B24-9A85-8BB8D797C9C1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestScreen", "..\TestScreen\TestScreen.csproj", "{A97DBBF1-49B6-4EC6-B6B1-C870CC3FC7CA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestScene", "..\TestScene\TestScene.csproj", "{A97DBBF1-49B6-4EC6-B6B1-C870CC3FC7CA}"
 EndProject
 Global
 	GlobalSection(Performance) = preSolution
@@ -30,5 +30,11 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6FD28262-C687-4D04-A347-B11B0988E180}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal

@@ -17,6 +17,13 @@ namespace MiniRender
 		
 		public float4 color;
 
+		public float3 uv;
+
+		public float3 worldNormal;
+
+		public float3 objNormal;
+
+		public float3 tangent;
 
 	}
 }

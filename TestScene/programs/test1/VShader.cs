@@ -10,12 +10,12 @@ namespace TestScreen.programs.test1
 	{
 		public override v2f Execute()
 		{
-			v2f v2f;
+			v2f v2f = __init_v2f();
 
-			v2f.SV_POSITION =  mul(MVP, appdata.vertex);
+			v2f.SV_POSITION = mul(MATRIX_VP, mul(MATRIX_M, appdata.vertex));
 			v2f.color = appdata.color;
-
-
+			v2f.uv = appdata.uv;
+			
 			return v2f;
 		}
 	}

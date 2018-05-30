@@ -20,16 +20,20 @@ namespace MiniRender
 
 
 		internal VertexShader vertexShader;
+		internal FragementShader fragementShader;
 
-		public void upload(VertexShader vertexShader)
+		public void upload(VertexShader vertexShader,FragementShader fragementShader)
 		{
 			this.vertexShader = vertexShader;
+			this.fragementShader = fragementShader;
 		}
 
 		internal bool Validate()
 		{
-			if (vertexShader == null)
+			if (vertexShader == null || fragementShader==null)
 				return false;
+
+
 
 			return true;
 

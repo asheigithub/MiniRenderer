@@ -81,6 +81,15 @@ namespace MiniRender
 			get { return new float2(v2, v3); }
 		}
 
+		public static float3 operator +(float3 lhs, double v)
+		{
+			return new float3(lhs.x + (float)v, lhs.y + (float)v, lhs.z + (float)v);
+		}
+		public static float3 operator -(float3 lhs, double v)
+		{
+			return new float3(lhs.x - (float)v, lhs.y -(float)v, lhs.z - (float)v);
+		}
+
 		public static float3 operator +(float3 lhs, float3 rhs)
 		{
 			return new float3(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z);
@@ -89,6 +98,15 @@ namespace MiniRender
 		public static float3 operator -(float3 lhs, float3 rhs)
 		{
 			return new float3(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z);
+		}
+
+		public static float3 operator -(float3 lhs)
+		{
+			return new float3(-lhs.x, -lhs.y, -lhs.z);
+		}
+		public static float3 operator +(float3 lhs)
+		{
+			return lhs;
 		}
 
 		public static float3 operator *(float3 lhs, float3 rhs)
@@ -101,11 +119,20 @@ namespace MiniRender
 			return new float3(lhs.x / rhs.x, lhs.y / rhs.y, lhs.z / rhs.z);
 		}
 
+		public static float3 operator *(float3 lhs, double v)
+		{
+			return new float3(lhs.x * (float)v, lhs.y * (float)v, lhs.z * (float)v);
+		}
+
 		public static float3 operator *(float3 lhs, float v)
 		{
 			return new float3(lhs.x * v, lhs.y * v, lhs.z * v);
 		}
 
+		public static float3 operator /(float3 lhs, double v)
+		{
+			return new float3(lhs.x / (float)v, lhs.y / (float)v, lhs.z / (float)v);
+		}
 		public static float3 operator /(float3 lhs, float v)
 		{
 			float m = 1 / v;

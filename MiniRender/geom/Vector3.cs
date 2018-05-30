@@ -7,6 +7,28 @@ namespace MiniRender.geom
 {
 	public struct Vector3
 	{
+		public static Vector3 X_AXIS
+		{
+			get
+			{
+				return new Vector3(1, 0, 0);
+			}
+		}
+		public static Vector3 Y_AXIS
+		{
+			get
+			{
+				return new Vector3(0, 1, 0);
+			}
+		}
+		public static Vector3 Z_AXIS
+		{
+			get
+			{
+				return new Vector3(0, 0, 1);
+			}
+		}
+
 		public float x;
 		public float y;
 		public float z;

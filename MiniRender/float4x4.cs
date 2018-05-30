@@ -5,14 +5,14 @@ using System.Text;
 
 namespace MiniRender
 {
-	public struct m4
+	public struct float4x4
 	{
 		public float4 row0;
 		public float4 row1;
 		public float4 row2;
 		public float4 row3;
 
-		public m4(float4 r0,float4 r1,float4 r2,float4 r3)
+		public float4x4(float4 r0,float4 r1,float4 r2,float4 r3)
 		{
 			row0 = r0;row1 = r1;row2 = r2;row3 = r3;
 		}
@@ -40,8 +40,11 @@ namespace MiniRender
 						throw new ArgumentOutOfRangeException();
 				}
 			}
-		} 
-			
+		}
 
+		public static explicit operator float3x3(float4x4 m4)
+		{
+			return new float3x3(m4[0].xyz, m4[1].xyz, m4[2].xyz);
+		}
 	}
 }
