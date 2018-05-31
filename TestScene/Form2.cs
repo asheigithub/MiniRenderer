@@ -27,78 +27,98 @@ namespace TestScreen
 			System.Drawing.Bitmap bitmap = new Bitmap(pictureBox1.Width, pictureBox1.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
 			RenderTargetAdapter renderBufferAdapter = new RenderTargetAdapter(bitmap, pictureBox1);
-
 			context3D.configureBackBuffer(pictureBox1.Width, pictureBox1.Height, renderBufferAdapter);
+			pictureBox1.BackgroundImage = bitmap;
 
-			pictureBox1.Image = bitmap;
+
+			System.Drawing.Bitmap debuglayer = new Bitmap(pictureBox1.Width, pictureBox1.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+			RenderTargetAdapter debuggerAdapter = new RenderTargetAdapter(debuglayer, pictureBox1);
+			pictureBox1.Image = debuglayer;
+			context3D.debugLayerAdapter = debuggerAdapter;
 
 
 			Assimp.AssimpContext importer = new Assimp.AssimpContext();
 			
-			var scene= importer.ImportFile("../../../models/duck.dae", Assimp.PostProcessSteps.MakeLeftHanded 
+			var scene= importer.ImportFile("../../../models/dwarf2.b3d", 
+				Assimp.PostProcessSteps.MakeLeftHanded 
 				| Assimp.PostProcessSteps.Triangulate 
+				| Assimp.PostProcessSteps.GenerateSmoothNormals
 				| Assimp.PostProcessSteps.CalculateTangentSpace
 				);
 
-			var mesh = scene.Meshes[0];
-			var vs = mesh.Vertices;
-			var indices = mesh.GetUnsignedIndices();
+			lst_indexList = new List<IndexBuffer3D>();
+			lst_vertexes = new List<VertexBuffer3D>();
 
-			var normals = mesh.Normals;
-			var tangents = mesh.Tangents;
-			var coords = mesh.TextureCoordinateChannels[0];
-
-			indexList = context3D.createIndexBuffer(indices.Length);
-			indexList.uploadFromVector(indices);
-
-			List<Vertex> vertices = new List<Vertex>();
-			for (int i = 0; i < vs.Count; i++)
+			for (int k = 0; k < scene.MeshCount; k++)
 			{
-				vertices.Add(
-					new Vertex()
+
+
+				var mesh = scene.Meshes[k];
+				var vs = mesh.Vertices;
+				var indices = mesh.GetUnsignedIndices();
+
+				var normals = mesh.Normals;
+				var tangents = mesh.Tangents;
+				var coords = mesh.TextureCoordinateChannels[0];
+
+				var indexList = context3D.createIndexBuffer(indices.Length);
+				indexList.uploadFromVector(indices);
+
+				lst_indexList.Add(indexList);
+
+				List<Vertex> vertices = new List<Vertex>();
+				for (int i = 0; i < vs.Count; i++)
+				{
+					vertices.Add(
+						new Vertex()
 						{
-							vertex = new float3(vs[i].X,vs[i].Y,vs[i].Z) * 0.01				   
+							vertex = new float3(vs[i].X, vs[i].Y, vs[i].Z) * 0.05
 						}
-					);
-			}
-
-			if(mesh.HasNormals)
-			{
-				for (int i = 0; i < vs.Count; i++)
-				{
-					vertices[i].normal = new float3(normals[i].X, normals[i].Y, normals[i].Z);
+						);
 				}
-			}
 
-			if (mesh.HasTangentBasis)
-			{
-				for (int i = 0; i < vs.Count; i++)
+				if (mesh.HasNormals)
 				{
-					vertices[i].tangent = new float3(tangents[i].X, tangents[i].Y, tangents[i].Z);
+					for (int i = 0; i < vs.Count; i++)
+					{
+						vertices[i].normal = -(new float3(normals[i].X, normals[i].Y, normals[i].Z));
+					}
 				}
-			}
 
-			if (mesh.HasTextureCoords(0))
-			{
-				for (int i = 0; i < vs.Count; i++)
+				if (mesh.HasTangentBasis)
 				{
-					vertices[i].uv = new float3(coords[i].X, coords[i].Y, coords[i].Z);
+					for (int i = 0; i < vs.Count; i++)
+					{
+						vertices[i].tangent = new float3(tangents[i].X, tangents[i].Y, tangents[i].Z);
+					}
 				}
-			}
 
-			if (mesh.HasVertexColors(0))
-			{
-				var color = mesh.VertexColorChannels[0];
-				for (int i = 0; i < vs.Count; i++)
+				if (mesh.HasTextureCoords(0))
 				{
-					vertices[i].color = new float4(color[i].R, color[i].G, color[i].B, color[i].A);
+					for (int i = 0; i < vs.Count; i++)
+					{
+						vertices[i].uv = new float3(coords[i].X, coords[i].Y, coords[i].Z);
+					}
 				}
+
+				if (mesh.HasVertexColors(0))
+				{
+					var color = mesh.VertexColorChannels[0];
+					for (int i = 0; i < vs.Count; i++)
+					{
+						vertices[i].color = new float4(color[i].R, color[i].G, color[i].B, color[i].A);
+					}
+				}
+
+
+
+				var vertexes = context3D.createVertexBuffer(vertices.Count);
+				vertexes.uploadFromVector(vertices.ToArray());
+
+				lst_vertexes.Add(vertexes);
+
 			}
 
-
-
-			vertexes = context3D.createVertexBuffer(vertices.Count);
-			vertexes.uploadFromVector(vertices.ToArray());
 
 
 			var program3d = context3D.createProgram();
@@ -106,14 +126,14 @@ namespace TestScreen
 			context3D.setProgram(program3d);
 		}
 
-		VertexBuffer3D vertexes;
-		IndexBuffer3D indexList;
+		List< VertexBuffer3D> lst_vertexes;
+		List<IndexBuffer3D> lst_indexList;
 
 
 		private void button1_Click(object sender, EventArgs e)
 		{
-			timerFrame.Enabled = !timerFrame.Enabled;
-			//render();
+			//timerFrame.Enabled = !timerFrame.Enabled;
+			render();
 		}
 
 		
@@ -128,8 +148,7 @@ namespace TestScreen
 			Matrix3D _MatrixInvV;
 
 
-			context3D.bindVertexBuffer(vertexes);
-
+			
 			context3D.setCulling(Context3DTriangleFace.BACK);
 			context3D.setDepthTest(true, Context3DCompareMode.LESS);
 
@@ -144,8 +163,13 @@ namespace TestScreen
 			_ObjectToWorld = mv;
 			_WorldToObject = mv.getInvert();
 
+			Vector4 camerpos = new Vector4(0, 3, -7, 1);
 
-			var camera = Matrix3D.lookAtLH(0, 1f, -5,
+			Matrix3D mcamera = Matrix3D.Identity.appendRotation(angle, Vector3.Y_AXIS);
+			//camerpos = camerpos * mcamera;
+
+
+			var camera = Matrix3D.lookAtLH(camerpos.x,camerpos.y,camerpos.z,
 											0f, 0f, 0,
 											0, 1, 0);
 
@@ -158,10 +182,16 @@ namespace TestScreen
 			_MatrixVP = _MatrixV.append(perspective);
 
 			context3D.setProgramConstants_Matrices(_ObjectToWorld, _WorldToObject, _MatrixV, _matrix_projection, _MatrixVP, _MatrixInvV, true);
+			context3D.setProgramVariables(camerpos);
 
 
 			context3D.clear(49 / 255f, 77 / 255f, 121 / 255f);
-			context3D.drawTriangles(indexList);
+
+			for (int i = 0; i < lst_vertexes.Count; i++)
+			{
+				context3D.bindVertexBuffer(lst_vertexes[i]);
+				context3D.drawTriangles(lst_indexList[i]);
+			}
 
 			context3D.present();
 
@@ -172,6 +202,39 @@ namespace TestScreen
 		{
 			time += 0.016f;
 			render();
+		}
+
+		private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
+		{
+			
+
+			if (
+				context3D !=null 
+				&&
+				context3D.DebugBuffer != null)
+			{
+
+				
+				var debugdata = context3D.DebugBuffer.buffer[e.X][e.Y];
+
+				context3D.DrawDebugVisualization(debugdata.i, debugdata.j, 0.5f);
+				context3D.DebugBuffer.ClearVisualization();
+
+				if (debugdata.isEmpty)
+				{
+					toolStripStatusLabel1.Text = e.Location.ToString();
+				}
+				else
+				{
+					toolStripStatusLabel1.Text = e.Location.ToString() + " 当前片段着色器调试信息: " + debugdata.ToString();
+				}
+			}
+
+		}
+
+		private void button2_Click(object sender, EventArgs e)
+		{
+			timerFrame.Enabled = !timerFrame.Enabled;
 		}
 	}
 }

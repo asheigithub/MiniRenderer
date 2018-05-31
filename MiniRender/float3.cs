@@ -18,7 +18,7 @@ namespace MiniRender
 
 		public override string ToString()
 		{
-			return string.Format("{0},{1},{2}", v1, v2, v3);
+			return string.Format("{0},{1},{2}", v1.ToString("F4"), v2.ToString("F4"), v3.ToString("F4"));
 		}
 
 		private float v1;

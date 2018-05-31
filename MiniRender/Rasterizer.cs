@@ -136,6 +136,10 @@ namespace MiniRender
 			edge2.checkedgeattribue();
 			edge3.checkedgeattribue();
 
+
+			if (left < 0) left = 0;
+			if (top < 0) top = 0;
+
 			//***将矩形区域扩展成2的倍数
 			if (left % 2 == 1)
 				left--;
@@ -146,6 +150,7 @@ namespace MiniRender
 			if (bottom % 2 == 1)
 				bottom++;
 
+			
 			
 			for (int i = left; i < right; i+=2)
 			{
@@ -166,10 +171,10 @@ namespace MiniRender
 					float[] C = new float[4];
 					bool[] r_pass = new bool[4];
 
-					r_pass[0] = need_rasterize(edge1, edge2, edge3, new float2(i + 0.5f, j + 0.5f), area, out A[0], out B[0], out C[0]);
-					r_pass[1] = need_rasterize(edge1, edge2, edge3, new float2(i + 0.5f+1, j + 0.5f), area, out A[1], out B[1], out C[1]);
-					r_pass[2] = need_rasterize(edge1, edge2, edge3, new float2(i + 0.5f, j + 0.5f+1), area, out A[2], out B[2], out C[2]);
-					r_pass[3] = need_rasterize(edge1, edge2, edge3, new float2(i + 0.5f+1, j + 0.5f+1), area, out A[3], out B[3], out C[3]);
+					r_pass[0] = need_rasterize(edge1, edge2, edge3, new float2(pixelpositon.x, pixelpositon.y), area, out A[0], out B[0], out C[0]);
+					r_pass[1] = need_rasterize(edge1, edge2, edge3, new float2(pixelpositon.x + 1, pixelpositon.y ), area, out A[1], out B[1], out C[1]);
+					r_pass[2] = need_rasterize(edge1, edge2, edge3, new float2(pixelpositon.x, pixelpositon.y+1), area, out A[2], out B[2], out C[2]);
+					r_pass[3] = need_rasterize(edge1, edge2, edge3, new float2(pixelpositon.x + 1, pixelpositon.y+1), area, out A[3], out B[3], out C[3]);
 
 					if (!(r_pass[0] || r_pass[1] || r_pass[2] || r_pass[3]))
 					{
@@ -199,6 +204,24 @@ namespace MiniRender
 							v2f.SV_POSITION = (p1.SV_POSITION * a / p1.SV_POSITION.w +
 												p2.SV_POSITION * b / p2.SV_POSITION.w +
 												p3.SV_POSITION * c / p3.SV_POSITION.w)
+												/
+												(
+												a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
+												)
+												;
+
+							v2f.objPos = (p1.objPos * a / p1.SV_POSITION.w +
+												p2.objPos * b / p2.SV_POSITION.w +
+												p3.objPos * c / p3.SV_POSITION.w)
+												/
+												(
+												a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
+												)
+												;
+
+							v2f.worldPos = (p1.worldPos * a / p1.SV_POSITION.w +
+												p2.worldPos * b / p2.SV_POSITION.w +
+												p3.worldPos * c / p3.SV_POSITION.w)
 												/
 												(
 												a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
@@ -243,9 +266,9 @@ namespace MiniRender
 
 
 
-							v2f.tangent = (p1.tangent * a / p1.SV_POSITION.w +
-												p2.tangent * b / p2.SV_POSITION.w +
-												p3.tangent * c / p3.SV_POSITION.w)
+							v2f.worldTangent = (p1.worldTangent * a / p1.SV_POSITION.w +
+												p2.worldTangent * b / p2.SV_POSITION.w +
+												p3.worldTangent * c / p3.SV_POSITION.w)
 												/
 												(
 												a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
@@ -267,11 +290,11 @@ namespace MiniRender
 
 		private static bool need_rasterize(TriangleEdge edge1, TriangleEdge edge2, TriangleEdge edge3,float2 pixelpositon,float area ,out float A,out float B,out float C )
 		{
-
+			
 			A = TriangleDoubleArea(edge2.rtpos1, edge2.rtpos2, pixelpositon);
 			B = TriangleDoubleArea(edge3.rtpos1, edge3.rtpos2, pixelpositon);
 			C = TriangleDoubleArea(edge1.rtpos1, edge1.rtpos2, pixelpositon);
-
+			
 			if (area * A < 0 || area * B < 0 || area * C < 0)
 			{
 				//不在三角形内

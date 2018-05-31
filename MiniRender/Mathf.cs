@@ -59,6 +59,13 @@ namespace MiniRender
 			return (float)Math.Cos(v);
 		}
 
+
+		public static float pow(float x,float y)
+		{
+			return (float)Math.Pow(x,y);
+		}
+
+
 		public static float sqrt(float v)
 		{
 			return (float)Math.Sqrt(v);

@@ -85,6 +85,45 @@ namespace MiniRender
 		}
 
 
+		/// <summary>
+		/// World space position of the camera.
+		/// </summary>
+		protected float3 _WorldSpaceCameraPos
+		{
+			get
+			{
+				return constants.registers[ProgramConstants._WorldSpaceCameraPos_ROW].xyz;
+			}
+		}
+
+
+
+
+		/// <summary>
+		/// Returns world space direction (not normalized) from given object space vertex position towards the camera.
+		/// </summary>
+		/// <param name="v"></param>
+		/// <returns></returns>
+		protected float3 WorldSpaceViewDir(float3 worldPos)
+		{
+			return _WorldSpaceCameraPos - worldPos;
+		}
+
+		/// <summary>
+		/// Returns object space direction (not normalized) from given object space vertex position towards the camera.
+		/// </summary>
+		/// <param name="v"></param>
+		/// <returns></returns>
+		protected float3 ObjSpaceViewDir(float4 v)
+		{
+			float3 objSpaceCameraPos = mul(_WorldToObject, float4(_WorldSpaceCameraPos, 1)).xyz;
+			return objSpaceCameraPos - v.xyz;
+		}
+
+
+
+
+
 
 
 		public static float3 normalize(float3 v)
@@ -115,6 +154,10 @@ namespace MiniRender
 			return v.x + v.y + v.z + v.w;
 		}
 
+		public static float pow(double x,double y)
+		{
+			return Mathf.pow((float)x, (float)y);
+		}
 
 		public static float3x3 transpose(float3x3 m)
 		{
@@ -176,11 +219,23 @@ namespace MiniRender
 			return Mathf.max(v1, v2);
 		}
 
-
+		public static float sqrt(float v)
+		{
+			return Mathf.sqrt(v);
+		}
 
 		public static float floor(float v)
 		{
 			return Mathf.floor(v);
+		}
+		public static float2 floor(float2 v)
+		{
+			return float2( Mathf.floor(v.x), Mathf.floor(v.y));
+		}
+
+		public static float frac(float v)
+		{
+			return v - floor(v);
 		}
 
 

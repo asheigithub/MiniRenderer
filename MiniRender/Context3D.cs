@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MiniRender.geom;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,6 +30,11 @@ namespace MiniRender
 		private Context3DTriangleFace _culling;
 		private bool _depthtest_depthMask;
 		private Context3DCompareMode _depthtest_passCompareMode;
+
+
+
+		public debugger.FrameDebugBuffer DebugBuffer { get; private set; }
+		public IRenderTargetAdapter debugLayerAdapter;
 
 		/// <summary>
 		/// 设置渲染缓冲区的视口尺寸和其他属性。 
@@ -63,6 +69,16 @@ namespace MiniRender
 			_culling = Context3DTriangleFace.NONE;
 			_depthtest_depthMask = true;
 			_depthtest_passCompareMode = Context3DCompareMode.ALWAYS;
+
+
+			if (backbuffer.rt_width == width && backbuffer.rt_height == height)
+			{
+				DebugBuffer = new debugger.FrameDebugBuffer(width, height);
+			}
+			else
+			{
+				DebugBuffer = null;
+			}
 		}
 
 
@@ -85,7 +101,31 @@ namespace MiniRender
 			current_program3D = program;
 		}
 
+		
+		public void setProgramConstantsVector4(int index, geom.Vector4 vector4)
+		{
+			if (index < ProgramConstants.USERDEFINE_STARTIDX )
+			{
+				throw new ArgumentException("之前行被保留");
+			}
+			_setProgramConstantsVector4(index,vector4);
+		}
 
+		private void _setProgramConstantsVector4(int index, geom.Vector4 vector4)
+		{
+			programConstants.registers[index] = new float4(vector4.x, vector4.y, vector4.z, vector4.w);
+		}
+
+		/// <summary>
+		/// 设置预定义矩阵
+		/// </summary>
+		/// <param name="_ObjectToWorld"></param>
+		/// <param name="_WorldToObject"></param>
+		/// <param name="_MatrixV"></param>
+		/// <param name="_matrix_projection"></param>
+		/// <param name="_MatrixVP"></param>
+		/// <param name="_MatrixInvV"></param>
+		/// <param name="transpose"></param>
 		public void setProgramConstants_Matrices(
 			geom.Matrix3D _ObjectToWorld,
 			geom.Matrix3D _WorldToObject,
@@ -106,6 +146,16 @@ namespace MiniRender
 			_setProgramConstants_Matrix(_MatrixInvV, ProgramConstants._MatrixInvV_ROW0, transpose);
 		}
 
+		/// <summary>
+		/// 设置预定义的参数
+		/// </summary>
+		public void setProgramVariables(geom.Vector4 WorldSpaceCameraPos)
+		{
+			_setProgramConstantsVector4(ProgramConstants._WorldSpaceCameraPos_ROW, WorldSpaceCameraPos);
+
+		}
+
+
 		private void _setProgramConstants_Matrix(geom.Matrix3D matrix3D, int startindex , bool transpose )
 		{
 			if (transpose)
@@ -119,9 +169,9 @@ namespace MiniRender
 		
 		public void setProgramConstantsFromMatrix(geom.Matrix3D matrix3D,int startindex , bool transpose)
 		{
-			if (startindex < ProgramConstants._MatrixInvV_ROW0 + 3)
+			if (startindex < ProgramConstants.USERDEFINE_STARTIDX )
 			{
-				throw new ArgumentException("前12个是为M,VP,MVP保留的");
+				throw new ArgumentException("之前行被保留");
 			}
 
 			if (transpose)
@@ -183,6 +233,13 @@ namespace MiniRender
 
 			depth = Mathf.clamp01(depth);
 			currentRenderTarget.zBuffer.clear(depth);
+
+
+			if (DebugBuffer != null)
+			{
+				DebugBuffer.Clear();
+			}
+
 
 		}
 		private bool needclearflag;
@@ -248,6 +305,7 @@ namespace MiniRender
 			}
 
 			current_program3D.vertexShader.constants = programConstants;
+			current_program3D.fragementShader.constants = programConstants;
 
 			for (int i = 0; i < numTriangles; i++)
 			{
@@ -371,10 +429,19 @@ namespace MiniRender
 						{							
 							var unit = quadFragementUnit[k];
 
-							float4 oc = pixels[r.x][r.y];
-							current_program3D.fragementShader.Run(unit);
-							float4 color = unit.output;
+							debugger.FrameDebugData debugData = null;
+							if (DebugBuffer !=null && current_program3D.fragementShader.HasDebug)
+							{
+								debugData = DebugBuffer.buffer[r.x][r.y];
+								debugData.inputdata = unit.input;
+								debugData.i = r.x;
+								debugData.j = r.y;
+								debugData.Ready();
+							}
 
+							float4 oc = pixels[r.x][r.y];
+							current_program3D.fragementShader.Run(unit, debugData);
+							float4 color = unit.output;
 
 							#region 深度检测处理
 							{
@@ -447,6 +514,8 @@ namespace MiniRender
 							}
 							#endregion
 
+							
+							//***Blend***
 							float4 final = oc * (1 - color.a) + color * color.a;
 							pixels[r.x][r.y] = final;
 
@@ -460,86 +529,97 @@ namespace MiniRender
 
 				#region 线框
 
-				//var linepos1 = v1.SV_POSITION / v1.SV_POSITION.w;
-				//var linepos2 = v2.SV_POSITION / v2.SV_POSITION.w;
-				//var linepos3 = v3.SV_POSITION / v3.SV_POSITION.w;
+				var linepos1 = v1.SV_POSITION / v1.SV_POSITION.w;
+				var linepos2 = v2.SV_POSITION / v2.SV_POSITION.w;
+				var linepos3 = v3.SV_POSITION / v3.SV_POSITION.w;
 
-				//Rasterizer.Line(currentRenderBuffer,
-				//	linepos1.xy, linepos2.xy, new float4(0, 0, 0, 1));
+				Rasterizer.Line(currentRenderBuffer,
+					linepos1.xy, linepos2.xy, new float4(0, 0, 0, 1));
 
-				//Rasterizer.Line(currentRenderBuffer,
-				//	linepos2.xy, linepos3.xy, new float4(0, 0, 0, 1));
+				Rasterizer.Line(currentRenderBuffer,
+					linepos2.xy, linepos3.xy, new float4(0, 0, 0, 1));
 
-				//Rasterizer.Line(currentRenderBuffer,
-				//	linepos3.xy, linepos1.xy, new float4(0, 0, 0, 1));
+				Rasterizer.Line(currentRenderBuffer,
+					linepos3.xy, linepos1.xy, new float4(0, 0, 0, 1));
 
 				#endregion
 
 				#region 显示经着色器计算后的法线和切线
 				{
-					//float4 sv1;
-					//float4 sv2;
-					//float4 sv3;
+					
+					//DrawDirLine(currentRenderBuffer, 0.2f, v1.worldPos, v1.worldNormal, new float4(0, 0, 1, 1));
+					//DrawDirLine(currentRenderBuffer, 0.2f, v1.worldPos, v1.worldTangent, new float4(1, 1, 0, 1));
 
-					//calNormalPos(currentVertexBuffer.vertices[(int)idx1], v1.worldNormal, v1.tangent, 0.2f, out sv1, out sv2, out sv3);
-					//Rasterizer.Line(currentRenderBuffer,
-					//	sv1.xy / sv1.w, sv2.xy / sv2.w, new float4(0, 0, 1, 1));
-					//Rasterizer.Line(currentRenderBuffer,
-					//	sv1.xy / sv1.w, sv3.xy / sv3.w, new float4(1, 1, 0, 1));
-
-					//calNormalPos(currentVertexBuffer.vertices[(int)idx2], v2.worldNormal, v2.tangent, 0.2f, out sv1, out sv2, out sv3);
-					//Rasterizer.Line(currentRenderBuffer,
-					//	sv1.xy / sv1.w, sv2.xy / sv2.w, new float4(0, 0, 1, 1));
-					//Rasterizer.Line(currentRenderBuffer,
-					//	sv1.xy / sv1.w, sv3.xy / sv3.w, new float4(1, 1, 0, 1));
-
-					//calNormalPos(currentVertexBuffer.vertices[(int)idx3], v3.worldNormal, v3.tangent, 0.2f, out sv1, out sv2, out sv3);
-					//Rasterizer.Line(currentRenderBuffer,
-					//	sv1.xy / sv1.w, sv2.xy / sv2.w, new float4(0, 0, 1, 1));
-					//Rasterizer.Line(currentRenderBuffer,
-					//	sv1.xy / sv1.w, sv3.xy / sv3.w, new float4(1, 1, 0, 1));
 				}
-
 
 				#endregion
 			}
 		}
 
-		private void calNormalPos(Vertex vertex, float3 normal,float3 targent, float length, out float4 np1,out float4 np2,out float4 np3)
+		private void DrawDirLine(IRenderTarget currentRenderBuffer, float linelength, float4 worldpos,float3 dir, float4 color)
 		{
-			var m = programConstants.MATRIX_M;
+			float4 sv1;
+			float4 sv2;
 
-			var vp = programConstants.MATRIX_VP;
-
-			var worldpos1 = Shader.mul(m, vertex.vertex);
-			var normalpoint = worldpos1 + Shader.normalize( normal) * length;
-			var targentpoint = worldpos1 + Shader.normalize( targent) * length;
-
-
-			np1 = Shader.mul(
-				vp,
-				new float4( worldpos1.xyz,1)
-				);
-			np2 = Shader.mul(
-				vp,
-				new float4(normalpoint.xyz, 1)
-				);
-			np3 = Shader.mul(
-				vp,
-				new float4(targentpoint.xyz, 1)
-				);
+			calDirectionPos(worldpos, dir, linelength, out sv1, out sv2);
+			Rasterizer.Line(currentRenderBuffer,
+				sv1.xy / sv1.w, sv2.xy / sv2.w, color);
 
 		}
 
 
 
+
+		private void calDirectionPos(float4 worldpos, float3 dir, float length, out float4 np1,out float4 np2)
+		{
+			
+			var vp = programConstants.MATRIX_VP;
+			var normalpoint = worldpos + Shader.normalize( dir) * length;
+
+			np1 = Shader.mul(
+				vp,
+				new float4( worldpos.xyz,1)
+				);
+			np2 = Shader.mul(
+				vp,
+				new float4(normalpoint.xyz, 1)
+				);
+			
+		}
+
+		public void DrawDebugVisualization(int x,int y,float edgeline)
+		{
+			if (DebugBuffer != null)
+			{
+				var data = DebugBuffer.buffer[x][y];
+				if (!data.hasdraw && !data.isEmpty)
+				{
+					for (int i = 0; i < data.debugInfos.Count; i++)
+					{
+						var info = data.debugInfos[i];
+
+						if (info.type== debugger.DebugInfoType.Vector)
+						{
+							DrawDirLine(DebugBuffer, edgeline, data.inputdata.worldPos, info.data.xyz, info.visualizationColor);
+						}
+					}
+
+					data.hasdraw = true;
+
+					if (debugLayerAdapter != null)
+					{
+						debugLayerAdapter.SetRenderBuffer(DebugBuffer);
+					}
+
+				}
+			}
+		}
+
+
+
+
+
 		private VertexBuffer3D currentVertexBuffer;
-
-
-
-
-
-
 		class RenderTargetBind
 		{
 			public IRenderTarget renderTarget;

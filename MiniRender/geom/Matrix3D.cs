@@ -316,6 +316,26 @@ namespace MiniRender.geom
 		}
 
 
+		public static Vector3 operator *( Vector3 vector3, Matrix3D matrix) 
+ 		{
+			return new Vector3(
+				vector3.x * matrix.M00 + vector3.y * matrix.M10 + vector3.z * matrix.M20 + matrix.M30,
+				vector3.x * matrix.M01 + vector3.y * matrix.M11 + vector3.z * matrix.M21 + matrix.M31,
+				vector3.x * matrix.M02 + vector3.y * matrix.M12 + vector3.z * matrix.M22 + matrix.M32
+				);
+		}
+		public static Vector4 operator *(Vector4 vector4, Matrix3D matrix)
+		{
+			return new Vector4(
+				vector4.x * matrix.M00 + vector4.y * matrix.M10 + vector4.z * matrix.M20 + vector4.w * matrix.M30,
+				vector4.x * matrix.M01 + vector4.y * matrix.M11 + vector4.z * matrix.M21 + vector4.w * matrix.M31,
+				vector4.x * matrix.M02 + vector4.y * matrix.M12 + vector4.z * matrix.M22 + vector4.w * matrix.M32,
+				vector4.x * matrix.M03 + vector4.y * matrix.M13 + vector4.z * matrix.M23 + vector4.w * matrix.M33
+				);
+		}
+
+
+
 		public static Matrix3D lookAtLH(float eyex, float eyey, float eyez,
 				float lookatx, float lookaty, float lookatz,
 				float upx, float upy, float upz)

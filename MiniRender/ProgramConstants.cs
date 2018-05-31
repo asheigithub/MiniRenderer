@@ -20,6 +20,13 @@ namespace MiniRender
 		internal const int _MatrixInvV_ROW0 = 20;
 
 
+
+		internal const int _WorldSpaceCameraPos_ROW = 50;
+		internal const int _FogColor_ROW = 79;
+		internal const int _FogParams_ROW = 80;
+
+		public const int USERDEFINE_STARTIDX = 81;
+
 		public float4x4 MATRIX_P
 		{
 			get

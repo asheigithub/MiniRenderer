@@ -15,13 +15,45 @@ namespace MiniRender
 			UV,
 		}
 
+		/// <summary>
+		/// 指示此片段着色器是否有调试信息显示
+		/// </summary>
+		public virtual bool HasDebug
+		{
+			get
+			{
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// 为了正确可视化向量，必须在顶点着色器中正确计算worldPos,特别注意!
+		/// </summary>
+		/// <param name="data"></param>
+		/// <param name="label"></param>
+		/// <param name="debugInfoType"></param>
+		/// <param name="visualizationColor"></param>
+		protected void AddDebugInfo(float4 data,string label,debugger.DebugInfoType debugInfoType ,float3 visualizationColor)
+		{
+			debugger.DebugInfo debugInfo = new debugger.DebugInfo();
+			debugInfo.label = label;
+			debugInfo.data = data;
+			debugInfo.type = debugInfoType;
+			debugInfo.visualizationColor = visualizationColor;
+
+			debugData.debugInfos.Add(debugInfo);
+
+		}
+
+
+		private debugger.FrameDebugData debugData;
 		private FragementUnit unit;
 
-		internal void Run(FragementUnit unit)
+		internal void Run(FragementUnit unit,debugger.FrameDebugData debugData)
 		{
-			this.unit = unit;
+			this.unit = unit;this.debugData = debugData;
 			unit.output = Execute(unit.input);
-			this.unit = null;
+			this.unit = null;this.debugData = null;
 		}
 
 		/// <summary>

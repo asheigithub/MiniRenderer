@@ -42,6 +42,7 @@
     <Compile Include="Context3DClearMask.cs" />
     <Compile Include="Context3DCompareMode.cs" />
     <Compile Include="Context3DTriangleFace.cs" />
+    <Compile Include="debugger\FrameDebugData.cs" />
     <Compile Include="float2.cs" />
     <Compile Include="float3.cs" />
     <Compile Include="float3x3.cs" />
@@ -50,6 +51,7 @@
     <Compile Include="geom\Matrix3D.cs" />
     <Compile Include="geom\Quaternion.cs" />
     <Compile Include="geom\Vector3.cs" />
+    <Compile Include="geom\Vector4.cs" />
     <Compile Include="IndexBuffer3D.cs" />
     <Compile Include="IRenderTarget.cs" />
     <Compile Include="IRenderTargetAdapter.cs" />

@@ -14,7 +14,12 @@ namespace MiniRender
 		/// 输出的顶点
 		/// </summary>
 		public float4 SV_POSITION;
-		
+
+
+		public float3 objPos;
+
+		public float3 worldPos;
+
 		public float4 color;
 
 		public float3 uv;
@@ -23,7 +28,7 @@ namespace MiniRender
 
 		public float3 objNormal;
 
-		public float3 tangent;
+		public float3 worldTangent;
 
 	}
 }
