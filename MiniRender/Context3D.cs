@@ -529,18 +529,18 @@ namespace MiniRender
 
 				#region 线框
 
-				var linepos1 = v1.SV_POSITION / v1.SV_POSITION.w;
-				var linepos2 = v2.SV_POSITION / v2.SV_POSITION.w;
-				var linepos3 = v3.SV_POSITION / v3.SV_POSITION.w;
+				//var linepos1 = v1.SV_POSITION / v1.SV_POSITION.w;
+				//var linepos2 = v2.SV_POSITION / v2.SV_POSITION.w;
+				//var linepos3 = v3.SV_POSITION / v3.SV_POSITION.w;
 
-				Rasterizer.Line(currentRenderBuffer,
-					linepos1.xy, linepos2.xy, new float4(0, 0, 0, 1));
+				//Rasterizer.Line(currentRenderBuffer,
+				//	linepos1.xy, linepos2.xy, new float4(0, 0, 0, 1));
 
-				Rasterizer.Line(currentRenderBuffer,
-					linepos2.xy, linepos3.xy, new float4(0, 0, 0, 1));
+				//Rasterizer.Line(currentRenderBuffer,
+				//	linepos2.xy, linepos3.xy, new float4(0, 0, 0, 1));
 
-				Rasterizer.Line(currentRenderBuffer,
-					linepos3.xy, linepos1.xy, new float4(0, 0, 0, 1));
+				//Rasterizer.Line(currentRenderBuffer,
+				//	linepos3.xy, linepos1.xy, new float4(0, 0, 0, 1));
 
 				#endregion
 

@@ -18,6 +18,7 @@ namespace TestScreen
 			InitializeComponent();
 		}
 
+		private Assimp.Scene scene;
 
 		Context3D context3D;
 		private void Form1_Load(object sender, EventArgs e)
@@ -39,15 +40,20 @@ namespace TestScreen
 
 			Assimp.AssimpContext importer = new Assimp.AssimpContext();
 			
-			var scene= importer.ImportFile("../../../models/dwarf2.b3d", 
+			scene= importer.ImportFile("../../../models/duck.dae", 
 				Assimp.PostProcessSteps.MakeLeftHanded 
 				| Assimp.PostProcessSteps.Triangulate 
-				| Assimp.PostProcessSteps.GenerateSmoothNormals
+				//| Assimp.PostProcessSteps.GenerateSmoothNormals
 				| Assimp.PostProcessSteps.CalculateTangentSpace
+				//| Assimp.PostProcessSteps.PreTransformVertices
 				);
 
 			lst_indexList = new List<IndexBuffer3D>();
 			lst_vertexes = new List<VertexBuffer3D>();
+
+			
+
+			
 
 			for (int k = 0; k < scene.MeshCount; k++)
 			{
@@ -56,6 +62,8 @@ namespace TestScreen
 				var mesh = scene.Meshes[k];
 				var vs = mesh.Vertices;
 				var indices = mesh.GetUnsignedIndices();
+
+				
 
 				var normals = mesh.Normals;
 				var tangents = mesh.Tangents;
@@ -72,7 +80,7 @@ namespace TestScreen
 					vertices.Add(
 						new Vertex()
 						{
-							vertex = new float3(vs[i].X, vs[i].Y, vs[i].Z) * 0.05
+							vertex = new float3(vs[i].X, vs[i].Y, vs[i].Z) * 0.01
 						}
 						);
 				}
@@ -81,7 +89,7 @@ namespace TestScreen
 				{
 					for (int i = 0; i < vs.Count; i++)
 					{
-						vertices[i].normal = -(new float3(normals[i].X, normals[i].Y, normals[i].Z));
+						vertices[i].normal = (new float3(normals[i].X, normals[i].Y, normals[i].Z));
 					}
 				}
 
@@ -140,6 +148,52 @@ namespace TestScreen
 
 		private void render()
 		{
+			
+			
+			context3D.setCulling(Context3DTriangleFace.BACK);
+			context3D.setDepthTest(true, Context3DCompareMode.LESS);
+
+			
+			Stack<Assimp.Node> nodes = new Stack<Assimp.Node>();
+			nodes.Push(scene.RootNode);
+
+			Dictionary<Assimp.Node, Assimp.Matrix4x4> dictNodeM = new Dictionary<Assimp.Node, Assimp.Matrix4x4>();
+			dictNodeM.Add(scene.RootNode, scene.RootNode.Transform);
+
+			context3D.clear(49 / 255f, 77 / 255f, 121 / 255f);
+
+			while (nodes.Count > 0)
+			{
+				var n = nodes.Pop();
+				for (int i = 0; i < n.ChildCount; i++)
+				{			
+					nodes.Push(n.Children[i]);
+					dictNodeM.Add(n.Children[i],  dictNodeM[n] * n.Children[i].Transform );
+
+				}
+
+				if (n.Name.IndexOf("LOD") > 0 && !n.Name.EndsWith("3"))
+				{
+
+				}
+				else if(n.MeshIndices.Count>0)
+				{
+
+					var m = dictNodeM[n];
+					renderMesh(m, n.MeshIndices);
+				}
+
+			}
+
+
+
+			context3D.present();
+
+		}
+
+		private void renderMesh(Assimp.Matrix4x4 matrix,List<int> meshindices)
+		{
+
 			Matrix3D _ObjectToWorld;
 			Matrix3D _WorldToObject;
 			Matrix3D _MatrixV;
@@ -148,35 +202,42 @@ namespace TestScreen
 			Matrix3D _MatrixInvV;
 
 
-			
-			context3D.setCulling(Context3DTriangleFace.BACK);
-			context3D.setDepthTest(true, Context3DCompareMode.LESS);
 
-			Matrix3D mv = Matrix3D.Identity;
-			
+			Matrix3D m = Matrix3D.Identity;
+
+			Matrix3D mt = new Matrix3D(
+				
+				matrix[1, 1], matrix[1, 2], matrix[1, 3], matrix[1, 4],
+				matrix[2, 1], matrix[2, 2], matrix[2, 3], matrix[2, 4],
+				matrix[3, 1], matrix[3, 2], matrix[3, 3], matrix[3, 4],
+				matrix[4, 1], matrix[4, 2], matrix[4, 3], matrix[4, 4]
+				);
+
+			//mt.transpose();
+			//m.append(mt);
+
 			float angle = time * 3.14f / 2;
+			m.appendRotation(angle, Vector3.Y_AXIS);
+			//m.appendScale(Mathf.sin(1), 1, 2);
+			
 
-			mv.appendRotation(angle, Vector3.Y_AXIS);
-			//mv.appendScale(Mathf.sin(1), 1, 2);
+			_ObjectToWorld = m;
+			_WorldToObject = m.getInvert();
 
-
-			_ObjectToWorld = mv;
-			_WorldToObject = mv.getInvert();
-
-			Vector4 camerpos = new Vector4(0, 3, -7, 1);
+			Vector4 camerpos = new Vector4(3, 3, -7, 1);
 
 			Matrix3D mcamera = Matrix3D.Identity.appendRotation(angle, Vector3.Y_AXIS);
 			//camerpos = camerpos * mcamera;
 
 
-			var camera = Matrix3D.lookAtLH(camerpos.x,camerpos.y,camerpos.z,
+			var camera = Matrix3D.lookAtLH(camerpos.x, camerpos.y, camerpos.z,
 											0f, 0f, 0,
 											0, 1, 0);
 
 			_MatrixV = camera;
 			_MatrixInvV = _MatrixV.getInvert();
 
-			var perspective = Matrix3D.perspectiveOffCenterLH(-1, 1, -1.0f * 600 / 800, 1.0f * 600 / 800, 2f, 8f);
+			var perspective = Matrix3D.perspectiveOffCenterLH(-1, 1, -1.0f * 600 / 800, 1.0f * 600 / 800, 2f, 20f);
 
 			_matrix_projection = perspective;
 			_MatrixVP = _MatrixV.append(perspective);
@@ -185,17 +246,16 @@ namespace TestScreen
 			context3D.setProgramVariables(camerpos);
 
 
-			context3D.clear(49 / 255f, 77 / 255f, 121 / 255f);
-
-			for (int i = 0; i < lst_vertexes.Count; i++)
+			
+			for (int i = 0; i < meshindices.Count; i++)
 			{
-				context3D.bindVertexBuffer(lst_vertexes[i]);
-				context3D.drawTriangles(lst_indexList[i]);
+				context3D.bindVertexBuffer(lst_vertexes[meshindices[i]]);
+				context3D.drawTriangles(lst_indexList[meshindices[i]]);
 			}
 
-			context3D.present();
-
 		}
+
+
 
 		float time = 0;
 		private void timerFrame_Tick(object sender, EventArgs e)
@@ -211,7 +271,13 @@ namespace TestScreen
 			if (
 				context3D !=null 
 				&&
-				context3D.DebugBuffer != null)
+				context3D.DebugBuffer != null
+				&&
+				e.X >=0 && e.X<context3D.DebugBuffer.rt_width
+				&&
+				e.Y >=0 && e.Y<context3D.DebugBuffer.rt_height
+				
+				)
 			{
 
 				

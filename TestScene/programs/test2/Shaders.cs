@@ -80,7 +80,7 @@ namespace TestScreen.programs.test2
 			AddDebugInfo(normalDir, "normalDir", MiniRender.debugger.DebugInfoType.Vector, float3(0, 0, 1));
 			AddDebugInfo(i.worldTangent, "worldTangent", MiniRender.debugger.DebugInfoType.Vector, float3(1, 1, 0));
 
-			float _Gloss = 30;
+			float _Gloss = 10;
 			float3 _Specular = float3(1, 1, 1);
 			float4 _LightColor0 = float4(1, 1, 1, 1);
 
@@ -94,8 +94,8 @@ namespace TestScreen.programs.test2
 			//fixed spec = pow(nh, s.Specular * 128) * s.Gloss;
 
 
-			float4 c = float4(0, 0, 0, 1);
-			c.rgb = _LightColor0.rgb * diff + specular;
+			float4 c = float4(0.7, 0.7, 0.7, 0.9);
+			c.rgb = c.rgb * _LightColor0.rgb * diff + specular;
 
 			return c;
 
