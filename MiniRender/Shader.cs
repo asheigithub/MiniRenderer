@@ -160,6 +160,16 @@ namespace MiniRender
 		}
 
 
+		public static float abs(double v)
+		{
+			return Math.Abs((float)v);
+		}
+
+
+
+
+
+
 		public static float3 cross(float3 vVector0, float3 vVector1)
 		{
 			
@@ -250,8 +260,27 @@ namespace MiniRender
 		{
 			return Mathf.max((float)v1, (float)v2);
 		}
+		public static float min(double v1, double v2)
+		{
+			return Mathf.min((float)v1, (float)v2);
+		}
+		public static float3 min(float3 v1, double v2)
+		{
+			return float3(min(v1.x, v2), min(v1.y, v2), min(v1.z, v2));
+		}
+		public static float3 min(float3 v1, float3 v2)
+		{
+			return float3(min(v1.x, v2.x), min(v1.y, v2.y), min(v1.z, v2.z));
+		}
 
-
+		public static float3 max(float3 v1, double v2)
+		{
+			return float3(max(v1.x, v2), max(v1.y, v2), max(v1.z, v2));
+		}
+		public static float3 max(float3 v1, float3 v2)
+		{
+			return float3(max(v1.x, v2.x), max(v1.y, v2.y), max(v1.z, v2.z));
+		}
 
 		public static float log(double x)
 		{
@@ -283,6 +312,12 @@ namespace MiniRender
 			return (float)Math.Pow(2,x);
 		}
 
+		public static float3 mix(float3 x, float3 y, float a)
+		{
+			return x * (1 - a) + y * a;
+		}
+
+
 		/// <summary>
 		/// extract the sign of the parameter.
 		/// sign returns -1.0 if x is less than 0.0, 0.0 if x is equal to 0.0, and +1.0 if x is greater than 0.0. 
@@ -298,6 +333,11 @@ namespace MiniRender
 		{
 			return Mathf.sqrt((float)v);
 		}
+		public static float3 sqrt(float3 v)
+		{
+			return float3(sqrt(v.x), sqrt(v.y), sqrt(v.z));
+		}
+
 		public static float floor(double v)
 		{
 			return Mathf.floor((float)v);
@@ -314,6 +354,23 @@ namespace MiniRender
 		{
 			return (float)Math.Ceiling(v);
 		}
+
+
+		public static float3 clamp(float3 x,float minVal,float maxVal)
+		{
+			return min(max(x, minVal), maxVal);
+		}
+		public static float3 clamp(float3 x, float3 minVal, float3 maxVal)
+		{
+			return min(max(x, minVal), maxVal);
+		}
+		public static float clamp(double x, double minVal, double maxVal)
+		{
+			return min(max(x, minVal), maxVal);
+		}
+
+
+
 
 
 

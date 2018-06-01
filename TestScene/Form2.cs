@@ -40,7 +40,7 @@ namespace TestScreen
 
 			Assimp.AssimpContext importer = new Assimp.AssimpContext();
 			
-			scene= importer.ImportFile("../../../models/Sphere.fbx", 
+			scene= importer.ImportFile("../../../models/Robot2.fbx", 
 				Assimp.PostProcessSteps.MakeLeftHanded 
 				| Assimp.PostProcessSteps.Triangulate 
 				//| Assimp.PostProcessSteps.GenerateSmoothNormals
@@ -80,7 +80,7 @@ namespace TestScreen
 					vertices.Add(
 						new Vertex()
 						{
-							vertex = new float3(vs[i].X, vs[i].Y, vs[i].Z)
+							vertex = new float3(vs[i].X, vs[i].Y, vs[i].Z) 
 						}
 						);
 				}
@@ -130,9 +130,12 @@ namespace TestScreen
 
 
 			var program3d = context3D.createProgram();
-			program3d.upload(new programs.test3.VShader(), new programs.test3.FShader());
+			fShader = new programs.test3.FShader();
+			program3d.upload(new programs.test3.VShader(), fShader);
 			context3D.setProgram(program3d);
 		}
+
+		programs.test3.FShader fShader;
 
 		List< VertexBuffer3D> lst_vertexes;
 		List<IndexBuffer3D> lst_indexList;
@@ -148,7 +151,7 @@ namespace TestScreen
 
 		private void render()
 		{
-			
+			//fShader._Metallic = (Mathf.sin(time) + 1) / 2;
 			
 			context3D.setCulling(Context3DTriangleFace.BACK);
 			context3D.setDepthTest(true, Context3DCompareMode.LESS);
@@ -225,14 +228,14 @@ namespace TestScreen
 			_ObjectToWorld = m;
 			_WorldToObject = m.getInvert();
 
-			Vector4 camerpos = new Vector4(3, 2, -3, 1);
+			Vector4 camerpos = new Vector4(0, 1, -3, 1);
 
 			Matrix3D mcamera = Matrix3D.Identity.appendRotation(angle, Vector3.Y_AXIS);
 			//camerpos = camerpos * mcamera;
 
 
 			var camera = Matrix3D.lookAtLH(camerpos.x, camerpos.y, camerpos.z,
-											0f, 0f, 0,
+											0f, 1f, 0,
 											0, 1, 0);
 
 			_MatrixV = camera;
@@ -308,6 +311,18 @@ namespace TestScreen
 		private void button2_Click(object sender, EventArgs e)
 		{
 			timerFrame.Enabled = !timerFrame.Enabled;
+		}
+
+		private void trackBar1_Scroll(object sender, EventArgs e)
+		{
+			fShader.Roughness = trackBar1.Value / 100.0f;
+			render();
+		}
+
+		private void trackBar2_Scroll(object sender, EventArgs e)
+		{
+			fShader._Metallic = trackBar2.Value / 100.0f;
+			render();
 		}
 	}
 }

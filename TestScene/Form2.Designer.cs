@@ -36,8 +36,12 @@
 			this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
 			this.button2 = new System.Windows.Forms.Button();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+			this.trackBar1 = new System.Windows.Forms.TrackBar();
+			this.trackBar2 = new System.Windows.Forms.TrackBar();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this.statusStrip1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// pictureBox1
@@ -92,11 +96,31 @@
 			this.button2.UseVisualStyleBackColor = true;
 			this.button2.Click += new System.EventHandler(this.button2_Click);
 			// 
+			// trackBar1
+			// 
+			this.trackBar1.Location = new System.Drawing.Point(901, 208);
+			this.trackBar1.Maximum = 100;
+			this.trackBar1.Name = "trackBar1";
+			this.trackBar1.Size = new System.Drawing.Size(104, 45);
+			this.trackBar1.TabIndex = 4;
+			this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll);
+			// 
+			// trackBar2
+			// 
+			this.trackBar2.Location = new System.Drawing.Point(901, 259);
+			this.trackBar2.Maximum = 100;
+			this.trackBar2.Name = "trackBar2";
+			this.trackBar2.Size = new System.Drawing.Size(104, 45);
+			this.trackBar2.TabIndex = 5;
+			this.trackBar2.Scroll += new System.EventHandler(this.trackBar2_Scroll);
+			// 
 			// Form2
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1111, 683);
+			this.Controls.Add(this.trackBar2);
+			this.Controls.Add(this.trackBar1);
 			this.Controls.Add(this.button2);
 			this.Controls.Add(this.statusStrip1);
 			this.Controls.Add(this.button1);
@@ -107,6 +131,8 @@
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
 			this.statusStrip1.ResumeLayout(false);
 			this.statusStrip1.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.trackBar2)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -121,5 +147,7 @@
 		private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
 		private System.Windows.Forms.Button button2;
 		private System.Windows.Forms.ToolTip toolTip1;
+		private System.Windows.Forms.TrackBar trackBar1;
+		private System.Windows.Forms.TrackBar trackBar2;
 	}
 }
