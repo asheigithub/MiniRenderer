@@ -35,6 +35,7 @@
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
 			this.button2 = new System.Windows.Forms.Button();
+			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this.statusStrip1.SuspendLayout();
 			this.SuspendLayout();
@@ -75,9 +76,11 @@
 			// 
 			// toolStripStatusLabel1
 			// 
+			this.toolStripStatusLabel1.Font = new System.Drawing.Font("Courier New", 9F);
 			this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-			this.toolStripStatusLabel1.Size = new System.Drawing.Size(131, 17);
+			this.toolStripStatusLabel1.Size = new System.Drawing.Size(154, 17);
 			this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
+			this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			// 
 			// button2
 			// 
@@ -117,5 +120,6 @@
 		private System.Windows.Forms.StatusStrip statusStrip1;
 		private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
 		private System.Windows.Forms.Button button2;
+		private System.Windows.Forms.ToolTip toolTip1;
 	}
 }

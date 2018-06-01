@@ -35,6 +35,9 @@ namespace MiniRender
 		/// <param name="visualizationColor"></param>
 		protected void AddDebugInfo(float4 data,string label,debugger.DebugInfoType debugInfoType ,float3 visualizationColor)
 		{
+			if (unit.isdiscard)
+				return;
+
 			debugger.DebugInfo debugInfo = new debugger.DebugInfo();
 			debugInfo.label = label;
 			debugInfo.data = data;
@@ -49,12 +52,23 @@ namespace MiniRender
 		private debugger.FrameDebugData debugData;
 		private FragementUnit unit;
 
+		
 		internal void Run(FragementUnit unit,debugger.FrameDebugData debugData)
-		{
+		{			
 			this.unit = unit;this.debugData = debugData;
 			unit.output = Execute(unit.input);
 			this.unit = null;this.debugData = null;
+			
 		}
+
+		/// <summary>
+		/// discard。
+		/// </summary>
+		protected void discard()
+		{
+			unit.isdiscard = true;
+		}
+
 
 		/// <summary>
 		/// 求DDX

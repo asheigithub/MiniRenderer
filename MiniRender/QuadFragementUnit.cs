@@ -101,6 +101,7 @@ namespace MiniRender
 
 		public FragementShader fragementShader;
 
+		internal bool isdiscard;
 		
 		internal FragementUnit dpdx_v1;
 		internal FragementUnit dpdx_v2;
@@ -113,6 +114,7 @@ namespace MiniRender
 			this.input = input;
 			this.output =new float4(0, 0, 0, 0);
 			fragementShader = shader;
+			isdiscard = false;
 		}
 	}
 

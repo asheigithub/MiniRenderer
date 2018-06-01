@@ -443,6 +443,11 @@ namespace MiniRender
 							current_program3D.fragementShader.Run(unit, debugData);
 							float4 color = unit.output;
 
+							if (unit.isdiscard)
+							{
+								continue;
+							}
+
 							#region 深度检测处理
 							{
 								//float depth = r.vsout.SV_POSITION.z / r.vsout.SV_POSITION.w;

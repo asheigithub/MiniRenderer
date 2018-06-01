@@ -136,7 +136,7 @@ namespace MiniRender.debugger
 
 				for (int i = 0; i < debugInfos.Count; i++)
 				{
-					result += debugInfos[i].ToString();
+					result += debugInfos[i].ToString() + "\n";
 				}
 
 				return result;
@@ -156,7 +156,7 @@ namespace MiniRender.debugger
 
 		public override string ToString()
 		{
-			return string.Format("{0}: {1},type:{2} ;",label,data,type);
+			return string.Format("{0}: {1}, type:{2} ;",label.PadRight(12,' '),data,type);
 		}
 	}
 

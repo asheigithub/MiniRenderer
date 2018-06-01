@@ -201,79 +201,7 @@ namespace MiniRender
 							r.y = j+jj;
 
 							v2f v2f = new v2f();
-							v2f.SV_POSITION = (p1.SV_POSITION * a / p1.SV_POSITION.w +
-												p2.SV_POSITION * b / p2.SV_POSITION.w +
-												p3.SV_POSITION * c / p3.SV_POSITION.w)
-												/
-												(
-												a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
-												)
-												;
-
-							v2f.objPos = (p1.objPos * a / p1.SV_POSITION.w +
-												p2.objPos * b / p2.SV_POSITION.w +
-												p3.objPos * c / p3.SV_POSITION.w)
-												/
-												(
-												a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
-												)
-												;
-
-							v2f.worldPos = (p1.worldPos * a / p1.SV_POSITION.w +
-												p2.worldPos * b / p2.SV_POSITION.w +
-												p3.worldPos * c / p3.SV_POSITION.w)
-												/
-												(
-												a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
-												)
-												;
-
-							v2f.color = (p1.color * a / p1.SV_POSITION.w +
-												p2.color * b / p2.SV_POSITION.w +
-												p3.color * c / p3.SV_POSITION.w)
-												/
-												(
-												a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
-												)
-												;
-
-							v2f.uv = (p1.uv * a / p1.SV_POSITION.w +
-												p2.uv * b / p2.SV_POSITION.w +
-												p3.uv * c / p3.SV_POSITION.w)
-												/
-												(
-												a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
-												)
-												;
-
-							v2f.worldNormal = (p1.worldNormal * a / p1.SV_POSITION.w +
-												p2.worldNormal * b / p2.SV_POSITION.w +
-												p3.worldNormal * c / p3.SV_POSITION.w)
-												/
-												(
-												a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
-												)
-												;
-
-							v2f.objNormal = (p1.objNormal * a / p1.SV_POSITION.w +
-												p2.objNormal * b / p2.SV_POSITION.w +
-												p3.objNormal * c / p3.SV_POSITION.w)
-												/
-												(
-												a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
-												)
-												;
-
-
-
-							v2f.worldTangent = (p1.worldTangent * a / p1.SV_POSITION.w +
-												p2.worldTangent * b / p2.SV_POSITION.w +
-												p3.worldTangent * c / p3.SV_POSITION.w)
-												/
-												(
-												a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
-												)
-												;
+							interpolation(ref v2f, ref p1, ref p2, ref p3, a, b, c);
 
 							r.vsout = v2f;
 
@@ -287,6 +215,86 @@ namespace MiniRender
 				}
 			}
 		}
+
+		private static void interpolation(ref v2f v2f,ref v2f p1,ref v2f p2,ref v2f p3,float a,float b,float c)
+		{
+			v2f.SV_POSITION = (p1.SV_POSITION * a / p1.SV_POSITION.w +
+												p2.SV_POSITION * b / p2.SV_POSITION.w +
+												p3.SV_POSITION * c / p3.SV_POSITION.w)
+												/
+												(
+												a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
+												)
+												;
+
+			v2f.objPos = (p1.objPos * a / p1.SV_POSITION.w +
+								p2.objPos * b / p2.SV_POSITION.w +
+								p3.objPos * c / p3.SV_POSITION.w)
+								/
+								(
+								a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
+								)
+								;
+
+			v2f.worldPos = (p1.worldPos * a / p1.SV_POSITION.w +
+								p2.worldPos * b / p2.SV_POSITION.w +
+								p3.worldPos * c / p3.SV_POSITION.w)
+								/
+								(
+								a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
+								)
+								;
+
+			v2f.color = (p1.color * a / p1.SV_POSITION.w +
+								p2.color * b / p2.SV_POSITION.w +
+								p3.color * c / p3.SV_POSITION.w)
+								/
+								(
+								a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
+								)
+								;
+
+			v2f.uv = (p1.uv * a / p1.SV_POSITION.w +
+								p2.uv * b / p2.SV_POSITION.w +
+								p3.uv * c / p3.SV_POSITION.w)
+								/
+								(
+								a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
+								)
+								;
+
+			v2f.worldNormal = (p1.worldNormal * a / p1.SV_POSITION.w +
+								p2.worldNormal * b / p2.SV_POSITION.w +
+								p3.worldNormal * c / p3.SV_POSITION.w)
+								/
+								(
+								a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
+								)
+								;
+
+			v2f.objNormal = (p1.objNormal * a / p1.SV_POSITION.w +
+								p2.objNormal * b / p2.SV_POSITION.w +
+								p3.objNormal * c / p3.SV_POSITION.w)
+								/
+								(
+								a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
+								)
+								;
+
+
+
+			v2f.worldTangent = (p1.worldTangent * a / p1.SV_POSITION.w +
+								p2.worldTangent * b / p2.SV_POSITION.w +
+								p3.worldTangent * c / p3.SV_POSITION.w)
+								/
+								(
+								a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
+								)
+								;
+		}
+
+
+
 
 		private static bool need_rasterize(TriangleEdge edge1, TriangleEdge edge2, TriangleEdge edge3,float2 pixelpositon,float area ,out float A,out float B,out float C )
 		{

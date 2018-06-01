@@ -120,10 +120,37 @@ namespace MiniRender
 			return objSpaceCameraPos - v.xyz;
 		}
 
+ 
+		/// <summary>
+		/// Transforms direction from object to world space
+		/// </summary>
+		/// <param name="dir"></param>
+		/// <returns></returns>
+		protected float3 ObjectToWorldDir(float3 dir)
+		{
+			return normalize(mul((float3x3)_ObjectToWorld, dir));
+		}
 
+		/// <summary>
+		/// Transforms normal from object to world space
+		/// </summary>
+		/// <param name="norm">规格化的normal</param>
+		/// <returns></returns>
+		protected float3 ObjectToWorldNormal(float3 norm)
+		{
+			// mul(IT_M, norm) => mul(norm, I_M) => {dot(norm, I_M.col0), dot(norm, I_M.col1), dot(norm, I_M.col2)}
+			return normalize(mul(norm, (float3x3)_WorldToObject));
+		}
 
-
-
+		/// <summary>
+		/// Transforms direction from world to object space
+		/// </summary>
+		/// <param name="dir"></param>
+		/// <returns></returns>
+		protected float3 WorldToObjectDir(float3 dir)
+		{
+			return normalize(mul((float3x3)_WorldToObject, dir));
+		}
 
 
 		public static float3 normalize(float3 v)
@@ -214,16 +241,67 @@ namespace MiniRender
 				);
 		}
 
-		public static float max(float v1, float v2)
+		protected float3 mul(float3 vector, float3x3 matrix)
 		{
-			return Mathf.max(v1, v2);
+			return _WorldToObject[0].xyz * vector.x + _WorldToObject[1].xyz * vector.y + _WorldToObject[2].xyz * vector.z;
 		}
 
-		public static float sqrt(float v)
+		public static float max(double v1, double v2)
 		{
-			return Mathf.sqrt(v);
+			return Mathf.max((float)v1, (float)v2);
 		}
 
+
+
+		public static float log(double x)
+		{
+			return (float)Math.Log(x);
+		}
+
+		public static float log2(double x)
+		{
+			return (float)Math.Log(x,2);
+		}
+
+		/// <summary>
+		/// return the natural exponentiation of the parameter
+		/// </summary>
+		/// <param name="x"></param>
+		/// <returns></returns>
+		public static float exp(double x)
+		{
+			return (float)Math.Exp(x);
+		}
+
+		/// <summary>
+		/// return 2 raised to the power of the parameter
+		/// </summary>
+		/// <param name="x"></param>
+		/// <returns></returns>
+		public static float exp2(double x)
+		{
+			return (float)Math.Pow(2,x);
+		}
+
+		/// <summary>
+		/// extract the sign of the parameter.
+		/// sign returns -1.0 if x is less than 0.0, 0.0 if x is equal to 0.0, and +1.0 if x is greater than 0.0. 
+		/// </summary>
+		/// <returns></returns>
+		public static float sign(double x)
+		{
+			return Math.Sign(x);
+		}
+
+
+		public static float sqrt(double v)
+		{
+			return Mathf.sqrt((float)v);
+		}
+		public static float floor(double v)
+		{
+			return Mathf.floor((float)v);
+		}
 		public static float floor(float v)
 		{
 			return Mathf.floor(v);
@@ -232,11 +310,58 @@ namespace MiniRender
 		{
 			return float2( Mathf.floor(v.x), Mathf.floor(v.y));
 		}
-
-		public static float frac(float v)
+		public static float ceil(double v)
 		{
-			return v - floor(v);
+			return (float)Math.Ceiling(v);
 		}
+
+
+
+		public static float frac(double v)
+		{
+			return (float)v - floor((float)v);
+		}
+
+		/// <summary>
+		/// calculate the reflection direction for an incident vector
+		/// </summary>
+		/// <param name="I"></param>
+		/// <param name="N"></param>
+		/// <returns></returns>
+		public static float3 reflect(float3 I,float3 N)
+		{
+			return I - N * (2 * dot(N, I)) ;
+		}
+
+		/// <summary>
+		/// calculate the refraction direction for an incident vector
+		/// </summary>
+		/// <param name="I"></param>
+		/// <param name="N"></param>
+		/// <param name="eta"></param>
+		/// <returns></returns>
+		public static float3 refract(float3 I,float3 N,float eta)
+		{
+			//Description
+			//For a given incident vector I, surface normal N and ratio of indices of refraction, eta, refract returns the refraction vector, R.
+			//R is calculated as: 
+
+			//	k = 1.0 - eta * eta * (1.0 - dot(N, I) * dot(N, I));
+			//			if (k < 0.0)
+			//				R = genType(0.0);       // or genDType(0.0)
+			//			else
+			//				R = eta * I - (eta * dot(N, I) + sqrt(k)) * N;
+
+			//			The input parameters I and N should be normalized in order to achieve the desired result. 
+
+			float k = 1 - eta * eta * (1 - dot(N, I) * dot(N, I));
+			if (k < 0)
+				return float3(0, 0, 0);
+			else
+				return I * eta - N*(dot(N, I) * eta + sqrt(k)) ;
+
+		}
+
 
 
 		#region 各种 float 构造函数

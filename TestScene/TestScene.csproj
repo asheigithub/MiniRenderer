@@ -64,6 +64,7 @@
     <Compile Include="programs\test1\FShader.cs" />
     <Compile Include="programs\test1\VShader.cs" />
     <Compile Include="programs\test2\Shaders.cs" />
+    <Compile Include="programs\test3\Shaders.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RenderTargetAdapter.cs" />
     <EmbeddedResource Include="Form1.resx">

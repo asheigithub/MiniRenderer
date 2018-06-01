@@ -40,7 +40,7 @@ namespace TestScreen
 
 			Assimp.AssimpContext importer = new Assimp.AssimpContext();
 			
-			scene= importer.ImportFile("../../../models/duck.dae", 
+			scene= importer.ImportFile("../../../models/Sphere.fbx", 
 				Assimp.PostProcessSteps.MakeLeftHanded 
 				| Assimp.PostProcessSteps.Triangulate 
 				//| Assimp.PostProcessSteps.GenerateSmoothNormals
@@ -80,7 +80,7 @@ namespace TestScreen
 					vertices.Add(
 						new Vertex()
 						{
-							vertex = new float3(vs[i].X, vs[i].Y, vs[i].Z) * 0.01
+							vertex = new float3(vs[i].X, vs[i].Y, vs[i].Z)
 						}
 						);
 				}
@@ -130,7 +130,7 @@ namespace TestScreen
 
 
 			var program3d = context3D.createProgram();
-			program3d.upload(new programs.test2.VShader(), new programs.test2.FShader());
+			program3d.upload(new programs.test3.VShader(), new programs.test3.FShader());
 			context3D.setProgram(program3d);
 		}
 
@@ -172,11 +172,12 @@ namespace TestScreen
 
 				}
 
-				if (n.Name.IndexOf("LOD") > 0 && !n.Name.EndsWith("3"))
-				{
+				//if (n.Name.IndexOf("LOD") > 0 && !n.Name.EndsWith("3"))
+				//{
 
-				}
-				else if(n.MeshIndices.Count>0)
+				//}
+				//else 
+				if(n.MeshIndices.Count>0)
 				{
 
 					var m = dictNodeM[n];
@@ -224,7 +225,7 @@ namespace TestScreen
 			_ObjectToWorld = m;
 			_WorldToObject = m.getInvert();
 
-			Vector4 camerpos = new Vector4(3, 3, -7, 1);
+			Vector4 camerpos = new Vector4(3, 2, -3, 1);
 
 			Matrix3D mcamera = Matrix3D.Identity.appendRotation(angle, Vector3.Y_AXIS);
 			//camerpos = camerpos * mcamera;
@@ -266,21 +267,21 @@ namespace TestScreen
 
 		private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
 		{
-			
+
 
 			if (
-				context3D !=null 
+				context3D != null
 				&&
 				context3D.DebugBuffer != null
 				&&
-				e.X >=0 && e.X<context3D.DebugBuffer.rt_width
+				e.X >= 0 && e.X < context3D.DebugBuffer.rt_width
 				&&
-				e.Y >=0 && e.Y<context3D.DebugBuffer.rt_height
-				
+				e.Y >= 0 && e.Y < context3D.DebugBuffer.rt_height
+
 				)
 			{
 
-				
+
 				var debugdata = context3D.DebugBuffer.buffer[e.X][e.Y];
 
 				context3D.DrawDebugVisualization(debugdata.i, debugdata.j, 0.5f);
@@ -289,12 +290,18 @@ namespace TestScreen
 				if (debugdata.isEmpty)
 				{
 					toolStripStatusLabel1.Text = e.Location.ToString();
+					
 				}
 				else
 				{
-					toolStripStatusLabel1.Text = e.Location.ToString() + " 当前片段着色器调试信息: " + debugdata.ToString();
+					toolStripStatusLabel1.Text = e.Location.ToString() + "调试信息:\n" + debugdata.ToString();
+					
 				}
+
+
+
 			}
+			
 
 		}
 
