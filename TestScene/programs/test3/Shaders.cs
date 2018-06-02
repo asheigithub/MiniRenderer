@@ -34,7 +34,7 @@ namespace TestScreen.programs.test3
 		private float INV_PI = 1 / 3.1415926f;
 
 
-		float3 DisneyDiffuse(float3 In, float3 Out , float3 normal )
+		float3 DisneyDiffuse(float3 In, float3 Out , float3 normal ,float3 diffcolor)
 		{
 			float3 H = normalize(In + Out);
 
@@ -43,7 +43,7 @@ namespace TestScreen.programs.test3
 			float CosTheaaV = dot(Out, normal);
 
 			float FD_90 = 0.5f + 2 * CosThetaD * CosThetaD * (1-Roughness);
-			return _diffcolor * INV_PI * (1 + (FD_90 - 1) * pow(1 - CosThetaL, 5)) * (1 + (FD_90 - 1) * pow(1 - CosTheaaV, 5));
+			return diffcolor * INV_PI * (1 + (FD_90 - 1) * pow(1 - CosThetaL, 5)) * (1 + (FD_90 - 1) * pow(1 - CosTheaaV, 5));
 			
 
 			//float oneMinusCosL = 1.0f - abs( dot(In,normal));
@@ -171,16 +171,16 @@ namespace TestScreen.programs.test3
 			return mix(x, y, t);
 		}
 
-
-		private float3 _diffcolor = float3(0.6, 0.6,0.6);
-		private float3 _SpecularColor = float3(230/255.0f, 125 / 255.0f, 40 / 255.0f) * 4;
+		private float3 _lightColor = float3(2,2,2);
+		private float3 _diffcolor = float3(1, 1, 1);
+		private float3 _SpecularColor = float3(1, 1, 1);
 		public float Roughness =0.7f;
 		public float _Metallic = 0f;
 		protected override float4 Execute(v2f i)
 		{
 
-			AddDebugInfo(float4(Roughness, 0, 0, 0), "粗糙度", MiniRender.debugger.DebugInfoType.Numeric, float3(0, 0, 0));
-			AddDebugInfo(float4(_Metallic, 0, 0, 0), "金属性", MiniRender.debugger.DebugInfoType.Numeric, float3(0, 0, 0));
+			//AddDebugInfo(float4(Roughness, 0, 0, 0), "粗糙度", MiniRender.debugger.DebugInfoType.Numeric, float3(0, 0, 0));
+			//AddDebugInfo(float4(_Metallic, 0, 0, 0), "金属性", MiniRender.debugger.DebugInfoType.Numeric, float3(0, 0, 0));
 
 
 			float3 diffuseColor = _diffcolor * (1.0 - _Metallic);
@@ -200,8 +200,12 @@ namespace TestScreen.programs.test3
 			float3 lightDir = normalize( float3(-6, 9, -9));
 			float3 normal = normalize(i.worldNormal);
 
-			float3 diff = //_diffcolor * INV_PI ; //
-							DisneyDiffuse( lightDir, viewDir, i.worldNormal) * diffuseColor;
+			//AddDebugInfo(float4(lightDir, 0), "lightDir", MiniRender.debugger.DebugInfoType.Vector, float3(1, 1, 0));
+
+
+
+			float3 diff = //diffuseColor * INV_PI ; //
+							DisneyDiffuse( lightDir, viewDir, i.worldNormal,diffuseColor)  ;
 
 			
 
@@ -221,36 +225,26 @@ namespace TestScreen.programs.test3
 			float G = //Specular_G(Roughness, NoL, NoV);
 
 					Vis_Schlick(Roughness, NoV, NoL);
-			//SchlickGGXGeometricShadowingFunction(Roughness, NoL, NoV);
+			//SchlickGGXGeometricShadowingFunction(Roughness, NoL, NoV)/4/NoL/NoV;
 
 
 
 			//PBR
 			float3 specularity = D * F * G;
-			float grazingTerm = clamp(Roughness + _Metallic,0,1);
 			
-			float3 unityIndirectSpecularity = 0 * FresnelLerp(specColor, float3( grazingTerm,grazingTerm,grazingTerm), NoV) * max(0.15, _Metallic) * (1 - Roughness * Roughness * Roughness);
-
+			
 
 			//float3 lightingModel = ((diffuseColor) + specularity + (unityIndirectSpecularity * 1));
 			//lightingModel *= NoL;
 
-			float3 lightingModel = ((diff  + NoL * diffuseColor) * (1-_Metallic)  + specularity + (unityIndirectSpecularity * 1));
-			
+			float3 lightingModel = ((diff  )  + specularity );
+			lightingModel *= NoL* _lightColor ;
 
-			float4 finalDiffuse = float4(lightingModel * float3(1,1,1), 1);
+			//加上gramma校准。。
+			float4 finalDiffuse = float4( pow( lightingModel,1/2.2) , 1);
 			;
 			return finalDiffuse;
 
-
-
-			float4 c =
-				diff +
-				D * F * G;
-
-			//c.rgb =  float3(G,G, G);
-
-			return c;
 		}
 	}
 

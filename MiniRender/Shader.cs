@@ -196,6 +196,12 @@ namespace MiniRender
 			return Mathf.pow((float)x, (float)y);
 		}
 
+		public static float3 pow(float3 x, double y)
+		{
+			return float3(pow(x.x, y), pow(x.y, y), pow(x.z, y));
+		}
+
+
 		public static float3x3 transpose(float3x3 m)
 		{
 			return new float3x3(
