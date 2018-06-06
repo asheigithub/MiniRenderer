@@ -36,6 +36,9 @@ namespace MiniRender
 		public debugger.FrameDebugBuffer DebugBuffer { get; private set; }
 		public IRenderTargetAdapter debugLayerAdapter;
 
+
+		internal Sampler[] samplers;
+
 		/// <summary>
 		/// 设置渲染缓冲区的视口尺寸和其他属性。 
 		/// 渲染是双缓冲的。当调用 present() 方法时，后台缓冲区与可见的前台缓冲区交换。
@@ -70,6 +73,11 @@ namespace MiniRender
 			_depthtest_depthMask = true;
 			_depthtest_passCompareMode = Context3DCompareMode.ALWAYS;
 
+			samplers = new Sampler[8];
+			for (int i = 0; i < samplers.Length; i++)
+			{
+				samplers[i] = new Sampler();
+			}
 
 			if (backbuffer.rt_width == width && backbuffer.rt_height == height)
 			{
@@ -79,6 +87,42 @@ namespace MiniRender
 			{
 				DebugBuffer = null;
 			}
+		}
+
+
+
+		public textures.Texture createTexture(int width,int height)
+		{
+			return new textures.Texture(width,height);
+		}
+
+
+		/// <summary>
+		/// 指定要为片段程序的纹理输入寄存器使用的纹理。 
+		/// 一个片段程序最多可以从 8 个纹理对象读取信息。使用此函数将 Texture 或 CubeTexture 对象分配给片段程序使用的取样器寄存器之一。 
+		/// </summary>
+		/// <param name="sampler"></param>
+		/// <param name="texture"></param>
+		public void setTextureAt(int sampler, textures.TextureBase texture )
+		{
+			samplers[sampler].texture = texture;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="sampler"></param>
+		/// <param name="wrap"></param>
+		/// <param name="filter"></param>
+		/// <param name="mipfilter"></param>
+		public void setSamplerStateAt(int sampler, Context3DWrapMode wrap, Context3DTextureFilter filter, Context3DMipFilter mipfilter)
+		{
+			var s= samplers[sampler];
+
+			s.wrap = wrap;
+			s.mipFilter = mipfilter;
+			s.filter = filter;
+
 		}
 
 
@@ -402,7 +446,7 @@ namespace MiniRender
 				for (int j = 0; j < totalraises; j++)
 				{
 					var r = rasters[j];
-					if (r.vsout.SV_POSITION.z < 0 || r.vsout.SV_POSITION.z > r.vsout.SV_POSITION.w || double.IsNaN(r.vsout.SV_POSITION.z))
+					if (r.vsout.SV_POSITION.z < -1.192092896e-07F || r.vsout.SV_POSITION.z > r.vsout.SV_POSITION.w || double.IsNaN(r.vsout.SV_POSITION.z))
 					{
 						//在远近裁剪面外，去掉
 						continue;
@@ -420,7 +464,7 @@ namespace MiniRender
 					var r2 = rasters[j + 2];
 					var r3 = rasters[j + 3];
 
-					quadFragementUnit.setQuadUnit(current_program3D.fragementShader, r0.vsout, r1.vsout, r2.vsout, r3.vsout);
+					quadFragementUnit.setQuadUnit(this,current_program3D.fragementShader, r0.vsout, r1.vsout, r2.vsout, r3.vsout);
 
 					for (int k = 0; k < 4; k++)
 					{
@@ -441,7 +485,7 @@ namespace MiniRender
 
 							float4 oc = pixels[r.x][r.y];
 							current_program3D.fragementShader.Run(unit, debugData);
-							float4 color = unit.output;
+							float4 color = unit.output; color.a = Mathf.clamp01(color.a);
 
 							if (unit.isdiscard)
 							{

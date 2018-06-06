@@ -18,7 +18,7 @@ namespace TestScreen.programs.test2
 			v2f.uv = appdata.uv;			
 			v2f.worldNormal = 
 				normalize(_WorldToObject[0].xyz * appdata.normal.x + _WorldToObject[1].xyz * appdata.normal.y + _WorldToObject[2].xyz * appdata.normal.z);
-			v2f.worldTangent = mul((float3x3)_ObjectToWorld, appdata.tangent);
+			v2f.worldTangent = mul((float3x3)_ObjectToWorld, appdata.tangent.xyz);
 
 
 			//float3 lightDir = normalize(float3(0, 4, -4));

@@ -19,10 +19,29 @@ namespace TestScreen.programs.test3
 			v2f.objPos = appdata.vertex.xyz;
 			v2f.color = appdata.color;
 			v2f.uv = appdata.uv;
+
+
 			v2f.worldNormal = ObjectToWorldNormal(normalize(appdata.normal));
-				//normalize(_WorldToObject[0].xyz * appdata.normal.x + _WorldToObject[1].xyz * appdata.normal.y + _WorldToObject[2].xyz * appdata.normal.z);
-			v2f.worldTangent = mul((float3x3)_ObjectToWorld, appdata.tangent);
-			
+			//normalize(_WorldToObject[0].xyz * appdata.normal.x + _WorldToObject[1].xyz * appdata.normal.y + _WorldToObject[2].xyz * appdata.normal.z);
+			v2f.worldTangent = mul((float3x3)_ObjectToWorld, appdata.tangent.xyz);
+
+
+
+			// Declares 3x3 matrix 'rotation', filled with tangent space basis
+			float3 worldNormal = ObjectToWorldNormal(normalize(appdata.normal));
+			float3 worldTangent = ObjectToWorldDir(appdata.tangent.xyz);
+			float3 worldBinormal = cross(v2f.worldNormal, worldTangent) * appdata.tangent.w;
+
+			//创建切线空间
+			v2f.tSpace0 = float3(worldTangent.x, worldBinormal.x, worldNormal.x);
+			v2f.tSpace1 = float3(worldTangent.y, worldBinormal.y, worldNormal.y);
+			v2f.tSpace2 = float3(worldTangent.z, worldBinormal.z, worldNormal.z);
+
+
+
+
+
+
 			return v2f;
 		}
 	}
@@ -34,17 +53,28 @@ namespace TestScreen.programs.test3
 		private float INV_PI = 1 / 3.1415926f;
 
 
-		float3 DisneyDiffuse(float3 In, float3 Out , float3 normal ,float3 diffcolor)
+		float DisneyDiffuse(float LoH,float NoL,float NoV,float roughness)//float3 In, float3 Out , float3 normal ,float3 diffcolor)
 		{
-			float3 H = normalize(In + Out);
+			//float3 H = normalize(In + Out);
 
-			float CosThetaD = dot(H, In);
-			float CosThetaL = dot(In, normal);
-			float CosTheaaV = dot(Out, normal);
+			//float CosThetaD = dot(H, In);
+			//float CosThetaL = dot(In, normal);
+			//float CosTheaaV = dot(Out, normal);
 
-			float FD_90 = 0.5f + 2 * CosThetaD * CosThetaD * (1-Roughness);
-			return diffcolor * INV_PI * (1 + (FD_90 - 1) * pow(1 - CosThetaL, 5)) * (1 + (FD_90 - 1) * pow(1 - CosTheaaV, 5));
-			
+			//float FD_90 = 0.5f + 2 * CosThetaD * CosThetaD * (Roughness);
+			//return diffcolor * INV_PI * (1 + (FD_90 - 1) * pow(1 - CosThetaL, 5)) * (1 + (FD_90 - 1) * pow(1 - CosTheaaV, 5));
+
+
+
+
+			float CosThetaD = LoH;
+			float CosThetaL = NoL;
+			float CosTheaaV = NoV;
+
+			float FD_90 = 0.5f + 2 * CosThetaD * CosThetaD * (roughness);
+			return INV_PI * (1 + (FD_90 - 1) * pow(1 - CosThetaL, 5)) * (1 + (FD_90 - 1) * pow(1 - CosTheaaV, 5));
+
+
 
 			//float oneMinusCosL = 1.0f - abs( dot(In,normal));
 			//float oneMinusCosLSqr = oneMinusCosL * oneMinusCosL;
@@ -171,43 +201,49 @@ namespace TestScreen.programs.test3
 			return mix(x, y, t);
 		}
 
-		private float3 _lightColor = float3(2,2,2);
-		private float3 _diffcolor = float3(1, 1, 1);
+		private float3 _lightColor = float3(3.5,3.5,3.5);
+		private float3 albendo = float3(1, 1, 1);
 		private float3 _SpecularColor = float3(1, 1, 1);
 		public float Roughness =0.7f;
 		public float _Metallic = 0f;
 		protected override float4 Execute(v2f i)
 		{
 
-			//AddDebugInfo(float4(Roughness, 0, 0, 0), "粗糙度", MiniRender.debugger.DebugInfoType.Numeric, float3(0, 0, 0));
-			//AddDebugInfo(float4(_Metallic, 0, 0, 0), "金属性", MiniRender.debugger.DebugInfoType.Numeric, float3(0, 0, 0));
+			AddDebugInfo(float4(Roughness, 0, 0, 0), "粗糙度", MiniRender.debugger.DebugInfoType.Numeric, float3(0, 0, 0));
+			AddDebugInfo(float4(_Metallic, 0, 0, 0), "金属性", MiniRender.debugger.DebugInfoType.Numeric, float3(0, 0, 0));
 
 
-			float3 diffuseColor = _diffcolor * (1.0 - _Metallic);
-			//float f0 = F0(NdotL, NdotV, LdotH, roughness);
-			//diffuseColor *= f0;
-			//diffuseColor += indirectDiffuse;
+			//从法线贴图中取出法线
+			float3 normal = tex2D(2, i.uv * 4).xyz * 2 - 1;
 
-			//Specular calculations
+			//将法线从切线空间旋转到世界空间 Rotate normals from tangent space to world space
+			float3 worldNorm = float3(1, 1, 1);
+			worldNorm.x = dot(normalize(i.tSpace0), normal);//此处如果不normalize,则切线空间旋转不准确
+			worldNorm.y = dot(normalize(i.tSpace1), normal);
+			worldNorm.z = dot(normalize(i.tSpace2), normal);
 
 
-			float3 specColor = mix(_SpecularColor, _diffcolor, 1-_Metallic);
+			albendo = pow( tex2D(0, i.uv).rgb ,2.2); //将反射率转换到线性空间。
+
+			float3 diffuseColor = albendo * (1.0 - _Metallic);
+			_SpecularColor = mix( float3( 0.04,0.04,0.04), albendo, _Metallic);
+			
+			float3 specColor = mix(_SpecularColor, albendo, 1-_Metallic);
 
 
 
 
 			float3 viewDir = normalize( WorldSpaceViewDir(i.worldPos));
 			float3 lightDir = normalize( float3(-6, 9, -9));
-			float3 normal = normalize(i.worldNormal);
-
-			//AddDebugInfo(float4(lightDir, 0), "lightDir", MiniRender.debugger.DebugInfoType.Vector, float3(1, 1, 0));
-
+			//float3 normal = normalize(i.worldNormal);
+			normal = worldNorm;
 
 
-			float3 diff = //diffuseColor * INV_PI ; //
-							DisneyDiffuse( lightDir, viewDir, i.worldNormal,diffuseColor)  ;
 
-			
+			AddDebugInfo(float4(lightDir, 0), "lightDir", MiniRender.debugger.DebugInfoType.Vector, float3(1, 1, 0));
+			AddDebugInfo(float4(worldNorm, 0), "normal", MiniRender.debugger.DebugInfoType.Vector, float3(0, 0, 1));
+
+
 
 			float3 H = normalize(lightDir + viewDir);
 
@@ -216,9 +252,14 @@ namespace TestScreen.programs.test3
 			float NoL = clamp( dot(normal, lightDir),0,1);
 			float NoV = clamp( dot(normal, viewDir),0,1);
 
+			float3 diff = //diffuseColor * INV_PI ; //
+							DisneyDiffuse(dot(lightDir,H),NoL, NoV, Roughness) * diffuseColor;
+
+			
 			float D =
 				//TrowbridgeReitzNormalDistribution(Roughness, dot(normal, H));
 				D_GGX(Roughness, dot( normal, H));
+				
 
 			float3 F = F_Schlick(specColor, VoH);
 

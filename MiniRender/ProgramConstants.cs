@@ -8,7 +8,7 @@ namespace MiniRender
 	/// <summary>
 	/// 常量寄存器表
 	/// </summary>
-	class ProgramConstants
+	public class ProgramConstants
 	{
 		internal const int _ObjectToWorld_ROW0 = 0;
 		internal const int _WorldToObject_ROW0 = 4;

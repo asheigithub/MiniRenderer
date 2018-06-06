@@ -51,9 +51,28 @@ namespace TestScreen
 			lst_indexList = new List<IndexBuffer3D>();
 			lst_vertexes = new List<VertexBuffer3D>();
 
-			
 
-			
+			//var texture = context3D.createTexture(474, 474);
+			//texture.uploadFromByteArray(SceneUtils.LoadBitmapData("../../../models/texs/th.jpg"), 0);
+			var texture = //MiniRender.textures.Texture.white; 
+						SceneUtils.MakeAndUploadTexture(context3D, "../../../models/texs/Robot_Color.png");
+			texture.AutoGenMipMap();
+			context3D.setTextureAt(0, texture);
+			context3D.setSamplerStateAt(0, Context3DWrapMode.REPEAT, Context3DTextureFilter.LINEAR, Context3DMipFilter.MIPLINEAR);
+
+			//设置matcap
+			var matcap = SceneUtils.MakeAndUploadTexture(context3D, "../../../models/texs/MaCrea_6.png");
+			matcap.AutoGenMipMap();
+			context3D.setTextureAt(1, matcap);
+			context3D.setSamplerStateAt(1, Context3DWrapMode.CLAMP, Context3DTextureFilter.LINEAR, Context3DMipFilter.MIPLINEAR);
+
+			//设置法线
+			var normalmap = //MiniRender.textures.Texture.planeNormal;
+				SceneUtils.MakeAndUploadTexture(context3D, "../../../models/texs/Robot_Normal.png");
+			normalmap.AutoGenMipMap();
+			context3D.setTextureAt(2, normalmap);
+			context3D.setSamplerStateAt(2, Context3DWrapMode.REPEAT, Context3DTextureFilter.LINEAR, Context3DMipFilter.MIPNEAREST);
+
 
 			for (int k = 0; k < scene.MeshCount; k++)
 			{
@@ -131,7 +150,11 @@ namespace TestScreen
 
 			var program3d = context3D.createProgram();
 			fShader = new programs.test3.FShader();
-			program3d.upload(new programs.test3.VShader(), fShader);
+			program3d.upload(new programs.test3.VShader(), 
+				//new programs.test4.FShader_Bump()
+				fShader
+				);
+			
 			context3D.setProgram(program3d);
 		}
 
@@ -164,7 +187,7 @@ namespace TestScreen
 			dictNodeM.Add(scene.RootNode, scene.RootNode.Transform);
 
 			context3D.clear(49 / 255f, 77 / 255f, 121 / 255f);
-
+			
 			while (nodes.Count > 0)
 			{
 				var n = nodes.Pop();
@@ -220,15 +243,22 @@ namespace TestScreen
 			//mt.transpose();
 			//m.append(mt);
 
+
+			//time = 0.096f;
+
 			float angle = time * 3.14f / 2;
+
+			//angle = 0.32656005f;
+
+			//m.appendRotation(angle, Vector3.X_AXIS);
 			m.appendRotation(angle, Vector3.Y_AXIS);
 			//m.appendScale(Mathf.sin(1), 1, 2);
-			
+
 
 			_ObjectToWorld = m;
 			_WorldToObject = m.getInvert();
 
-			Vector4 camerpos = new Vector4(0, 1, -3, 1);
+			Vector4 camerpos = new Vector4(0, 2, -3.3f, 1);
 
 			Matrix3D mcamera = Matrix3D.Identity.appendRotation(angle, Vector3.Y_AXIS);
 			//camerpos = camerpos * mcamera;
@@ -241,12 +271,12 @@ namespace TestScreen
 			_MatrixV = camera;
 			_MatrixInvV = _MatrixV.getInvert();
 
-			var perspective = Matrix3D.perspectiveOffCenterLH(-1, 1, -1.0f * 600 / 800, 1.0f * 600 / 800, 2f, 20f);
+			var perspective = Matrix3D.perspectiveOffCenterLH(-1, 1, -1.0f * 600 / 800, 1.0f * 600 / 800, 2f, 50f);
 
 			_matrix_projection = perspective;
 			_MatrixVP = _MatrixV.append(perspective);
 
-			context3D.setProgramConstants_Matrices(_ObjectToWorld, _WorldToObject, _MatrixV, _matrix_projection, _MatrixVP, _MatrixInvV, true);
+			context3D.setProgramConstants_Matrices(_ObjectToWorld, _WorldToObject, camera, _matrix_projection, _MatrixVP, _MatrixInvV, true);
 			context3D.setProgramVariables(camerpos);
 
 

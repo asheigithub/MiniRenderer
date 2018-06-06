@@ -17,7 +17,10 @@ namespace MiniRender
 		public float3 uv3;
 		public float3 uv4;
 		public float3 normal;
-		public float3 tangent;
+		/// <summary>
+		/// w为tangment bias
+		/// </summary>
+		public float4 tangent;
 
 	}
 }

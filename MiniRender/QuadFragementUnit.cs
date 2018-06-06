@@ -34,10 +34,10 @@ namespace MiniRender
 
 		public QuadFragementUnit()
 		{
-			unit0 = new FragementUnit();
-			unit1 = new FragementUnit();
-			unit2 = new FragementUnit();
-			unit3 = new FragementUnit();
+			unit0 = new FragementUnit(0,this);
+			unit1 = new FragementUnit(1,this);
+			unit2 = new FragementUnit(2,this);
+			unit3 = new FragementUnit(3,this);
 		}
 
 
@@ -63,12 +63,12 @@ namespace MiniRender
 			
 
 
-		public void setQuadUnit(FragementShader  fragementShader, v2f i0, v2f i1, v2f i2,v2f i3)
+		public void setQuadUnit( Context3D context3D, FragementShader  fragementShader, v2f i0, v2f i1, v2f i2,v2f i3)
 		{
-			unit0.initData(i0, fragementShader);
-			unit1.initData(i1, fragementShader);
-			unit2.initData(i2, fragementShader);
-			unit3.initData(i3, fragementShader);
+			unit0.initData(i0, context3D, fragementShader);
+			unit1.initData(i1, context3D, fragementShader);
+			unit2.initData(i2, context3D, fragementShader);
+			unit3.initData(i3, context3D, fragementShader);
 
 			unit0.dpdx_v1 = unit0;
 			unit0.dpdx_v2 = unit1;
@@ -109,9 +109,25 @@ namespace MiniRender
 		internal FragementUnit dpdy_v1;
 		internal FragementUnit dpdy_v2;
 
-		internal void initData(v2f input,FragementShader shader)
+
+		internal Sampler[] samplers;
+
+
+
+		internal int index;
+		internal QuadFragementUnit quadunit;
+		public FragementUnit(int index,QuadFragementUnit quadunit)
+		{
+			this.index = index;
+			this.quadunit = quadunit;
+		}
+
+
+
+		internal void initData(v2f input, Context3D context3D, FragementShader shader)
 		{
 			this.input = input;
+			this.samplers = context3D.samplers;
 			this.output =new float4(0, 0, 0, 0);
 			fragementShader = shader;
 			isdiscard = false;

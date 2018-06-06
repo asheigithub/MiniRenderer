@@ -172,6 +172,11 @@ namespace MiniRender
 			return new float4(lhs.x * (float)v, lhs.y * (float)v, lhs.z * (float)v, lhs.w * (float)v);
 		}
 
+		public static float4 operator *( double v,float4 rhs)
+		{
+			return new float4(rhs.x * (float)v, rhs.y * (float)v, rhs.z * (float)v, rhs.w * (float)v);
+		}
+
 		public static float4 operator /(float4 lhs, float v)
 		{
 			float m = 1 / v;

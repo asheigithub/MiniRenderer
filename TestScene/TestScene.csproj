@@ -60,18 +60,38 @@
     <Compile Include="Form2.Designer.cs">
       <DependentUpon>Form2.cs</DependentUpon>
     </Compile>
+    <Compile Include="Form3.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form3.Designer.cs">
+      <DependentUpon>Form3.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmGenNormal.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmGenNormal.Designer.cs">
+      <DependentUpon>FrmGenNormal.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="programs\test1\FShader.cs" />
     <Compile Include="programs\test1\VShader.cs" />
     <Compile Include="programs\test2\Shaders.cs" />
     <Compile Include="programs\test3\Shaders.cs" />
+    <Compile Include="programs\test4\Shaders.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RenderTargetAdapter.cs" />
+    <Compile Include="SceneUtils.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form2.resx">
       <DependentUpon>Form2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form3.resx">
+      <DependentUpon>Form3.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmGenNormal.resx">
+      <DependentUpon>FrmGenNormal.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

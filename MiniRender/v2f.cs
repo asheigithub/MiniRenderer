@@ -30,5 +30,11 @@ namespace MiniRender
 
 		public float3 worldTangent;
 
+
+
+		public float3 tSpace0;
+		public float3 tSpace1;
+		public float3 tSpace2;
+
 	}
 }

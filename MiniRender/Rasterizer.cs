@@ -291,6 +291,33 @@ namespace MiniRender
 								a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
 								)
 								;
+
+
+			v2f.tSpace0 = (p1.tSpace0 * a / p1.SV_POSITION.w +
+								p2.tSpace0 * b / p2.SV_POSITION.w +
+								p3.tSpace0 * c / p3.SV_POSITION.w)
+								/
+								(
+								a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
+								)
+								;
+			v2f.tSpace1 = (p1.tSpace1 * a / p1.SV_POSITION.w +
+								p2.tSpace1 * b / p2.SV_POSITION.w +
+								p3.tSpace1 * c / p3.SV_POSITION.w)
+								/
+								(
+								a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
+								)
+								;
+			v2f.tSpace2 = (p1.tSpace2 * a / p1.SV_POSITION.w +
+								p2.tSpace2 * b / p2.SV_POSITION.w +
+								p3.tSpace2 * c / p3.SV_POSITION.w)
+								/
+								(
+								a / p1.SV_POSITION.w + b / p2.SV_POSITION.w + c / p3.SV_POSITION.w
+								)
+								;
+
 		}
 
 

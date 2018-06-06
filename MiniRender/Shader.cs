@@ -7,7 +7,7 @@ namespace MiniRender
 {
 	public abstract class Shader
 	{
-		internal ProgramConstants constants;
+		internal protected ProgramConstants constants;
 
 		protected float PI = (float)Math.PI;
 
@@ -46,6 +46,8 @@ namespace MiniRender
 				return constants.MATRIX_V;
 			}
 		}
+
+		
 
 		/// <summary>
 		/// MATRIX_V 的逆矩阵
@@ -270,6 +272,14 @@ namespace MiniRender
 		{
 			return Mathf.min((float)v1, (float)v2);
 		}
+		public static float2 min(float2 v1, double v2)
+		{
+			return float2(min(v1.x, v2), min(v1.y, v2));
+		}
+		public static float2 min(float2 v1, float2 v2)
+		{
+			return float2(min(v1.x, v2.x), min(v1.y, v2.y));
+		}
 		public static float3 min(float3 v1, double v2)
 		{
 			return float3(min(v1.x, v2), min(v1.y, v2), min(v1.z, v2));
@@ -279,6 +289,14 @@ namespace MiniRender
 			return float3(min(v1.x, v2.x), min(v1.y, v2.y), min(v1.z, v2.z));
 		}
 
+		public static float2 max(float2 v1, double v2)
+		{
+			return float2(max(v1.x, v2), max(v1.y, v2));
+		}
+		public static float2 max(float2 v1, float2 v2)
+		{
+			return float2(max(v1.x, v2.x), max(v1.y, v2.y));
+		}
 		public static float3 max(float3 v1, double v2)
 		{
 			return float3(max(v1.x, v2), max(v1.y, v2), max(v1.z, v2));
@@ -361,6 +379,15 @@ namespace MiniRender
 			return (float)Math.Ceiling(v);
 		}
 
+		public static float2 clamp(float2 x, float minVal, float maxVal)
+		{
+			return min(max(x, minVal), maxVal);
+		}
+
+		public static float2 clamp(float2 x, float2 minVal, float2 maxVal)
+		{
+			return min(max(x, minVal), maxVal);
+		}
 
 		public static float3 clamp(float3 x,float minVal,float maxVal)
 		{

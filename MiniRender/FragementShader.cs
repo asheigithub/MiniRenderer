@@ -35,7 +35,7 @@ namespace MiniRender
 		/// <param name="visualizationColor"></param>
 		protected void AddDebugInfo(float4 data,string label,debugger.DebugInfoType debugInfoType ,float3 visualizationColor)
 		{
-			if (unit.isdiscard)
+			if (unit.isdiscard || debugData ==null)
 				return;
 
 			debugger.DebugInfo debugInfo = new debugger.DebugInfo();
@@ -82,7 +82,7 @@ namespace MiniRender
 			{
 				case DerivativeOperations.UV:
 					{
-						var d = unit.dpdx_v1.input.uv - unit.dpdx_v2.input.uv;
+						var d = unit.dpdx_v2.input.uv - unit.dpdx_v1.input.uv;
 						return new float4(d.x, d.y, 0, 0);
 					}
 				default:
@@ -100,11 +100,27 @@ namespace MiniRender
 			switch (op)
 			{
 				case DerivativeOperations.UV:
-					var d = unit.dpdy_v1.input.uv - unit.dpdy_v2.input.uv;
+					var d = unit.dpdy_v2.input.uv - unit.dpdy_v1.input.uv;
 					return new float4(d.x, d.y, 0, 0);
 				default:
 					return new float4();
 			}
+		}
+
+
+		protected float4 tex2D(int sampler, float2 uv)
+		{
+			return unit.samplers[sampler].getData(new float3(uv,0), unit);
+		}
+
+		protected float4 tex2D(int sampler, float3 uv)
+		{
+			return unit.samplers[sampler].getData(uv, unit);
+		}
+
+		protected float4 tex2D(int sampler, float3 uv,float lodbias)
+		{
+			return unit.samplers[sampler].getData(uv, unit,lodbias);
 		}
 
 		protected abstract float4 Execute(v2f IN);

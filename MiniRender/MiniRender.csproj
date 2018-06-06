@@ -61,7 +61,11 @@
     <Compile Include="ProgramConstants.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuadFragementUnit.cs" />
+    <Compile Include="Sampler.cs" />
     <Compile Include="Shader.cs" />
+    <Compile Include="textures\MipLevel.cs" />
+    <Compile Include="textures\Texture.cs" />
+    <Compile Include="textures\TextureBase.cs" />
     <Compile Include="v2f.cs" />
     <Compile Include="Rasterizer.cs" />
     <Compile Include="ScreenFrameBuffer.cs" />

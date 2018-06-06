@@ -171,7 +171,7 @@ namespace TestScreen
 			_matrix_projection = perspective;
 			_MatrixVP = _MatrixV.append(perspective);
 
-			context3D.setProgramConstants_Matrices(_ObjectToWorld, _WorldToObject, _MatrixV, _matrix_projection, _MatrixVP, _MatrixInvV, true);
+			context3D.setProgramConstants_Matrices(_ObjectToWorld, _WorldToObject, camera, _matrix_projection, _MatrixVP, _MatrixInvV, true);
 
 
 			context3D.clear(49 / 255f, 77 / 255f, 121 / 255f);

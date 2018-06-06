@@ -35,7 +35,14 @@ namespace MiniRender
 		}
 
 
-
+		public static float2 operator +(float2 lhs, double v)
+		{
+			return new float2(lhs.x + (float)v, lhs.y +(float)v);
+		}
+		public static float2 operator -(float2 lhs, double v)
+		{
+			return new float2(lhs.x - (float)v, lhs.y - (float)v);
+		}
 		public static float2 operator +(float2 lhs, float2 rhs)
 		{
 			return new float2(lhs.x + rhs.x, lhs.y + rhs.y);

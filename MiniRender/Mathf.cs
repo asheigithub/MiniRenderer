@@ -19,13 +19,20 @@ namespace MiniRender
 
 		public static float clamp01(float v)
 		{
-			if (v < 0)
-				return 0;
-			if (v > 1)
-				return 1;
+			return clamp(v, 0, 1);
+		}
+
+
+		public static float clamp(float v,float min,float max)
+		{
+			if (v < min)
+				return min;
+			if (v > max)
+				return max;
 
 			return v;
 		}
+
 
 		public static float min(float v1, float v2)
 		{
