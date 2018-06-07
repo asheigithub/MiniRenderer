@@ -32,15 +32,12 @@ namespace TestScreen.programs.test3
 			float3 worldTangent = ObjectToWorldDir(appdata.tangent.xyz);
 			float3 worldBinormal = cross(v2f.worldNormal, worldTangent) * appdata.tangent.w;
 
+			#region 切线空间旋转
 			//创建切线空间
 			v2f.tSpace0 = float3(worldTangent.x, worldBinormal.x, worldNormal.x);
 			v2f.tSpace1 = float3(worldTangent.y, worldBinormal.y, worldNormal.y);
 			v2f.tSpace2 = float3(worldTangent.z, worldBinormal.z, worldNormal.z);
-
-
-
-
-
+			#endregion
 
 			return v2f;
 		}
@@ -201,20 +198,35 @@ namespace TestScreen.programs.test3
 			return mix(x, y, t);
 		}
 
-		private float3 _lightColor = float3(3.5,3.5,3.5);
+		private float3 _lightColor = float3(8,8,8);
 		private float3 albendo = float3(1, 1, 1);
 		private float3 _SpecularColor = float3(1, 1, 1);
+
 		public float Roughness =0.7f;
 		public float _Metallic = 0f;
+
+		protected virtual void getRoughnessAndMetalic(v2f i, out float roughness,out float metallic)
+		{
+			roughness = Roughness;
+			metallic = _Metallic;
+		}
+
+
 		protected override float4 Execute(v2f i)
 		{
 
-			AddDebugInfo(float4(Roughness, 0, 0, 0), "粗糙度", MiniRender.debugger.DebugInfoType.Numeric, float3(0, 0, 0));
-			AddDebugInfo(float4(_Metallic, 0, 0, 0), "金属性", MiniRender.debugger.DebugInfoType.Numeric, float3(0, 0, 0));
+			float roughness;
+			float metalic;
+
+			getRoughnessAndMetalic(i, out roughness, out metalic);
+
+
+			AddDebugInfo(float4(roughness, 0, 0, 0), "粗糙度", MiniRender.debugger.DebugInfoType.Numeric, float3(0, 0, 0));
+			AddDebugInfo(float4(metalic, 0, 0, 0), "金属性", MiniRender.debugger.DebugInfoType.Numeric, float3(0, 0, 0));
 
 
 			//从法线贴图中取出法线
-			float3 normal = tex2D(2, i.uv * 4).xyz * 2 - 1;
+			float3 normal = tex2D(2, i.uv ).xyz * 2 - 1;
 
 			//将法线从切线空间旋转到世界空间 Rotate normals from tangent space to world space
 			float3 worldNorm = float3(1, 1, 1);
@@ -225,10 +237,10 @@ namespace TestScreen.programs.test3
 
 			albendo = pow( tex2D(0, i.uv).rgb ,2.2); //将反射率转换到线性空间。
 
-			float3 diffuseColor = albendo * (1.0 - _Metallic);
-			_SpecularColor = mix( float3( 0.04,0.04,0.04), albendo, _Metallic);
+			float3 diffuseColor = albendo * (1.0 - metalic);
+			_SpecularColor = mix( float3( 0.04,0.04,0.04), albendo, metalic);
 			
-			float3 specColor = mix(_SpecularColor, albendo, 1-_Metallic);
+			float3 specColor = mix(_SpecularColor, albendo, 1- metalic);
 
 
 
@@ -253,19 +265,19 @@ namespace TestScreen.programs.test3
 			float NoV = clamp( dot(normal, viewDir),0,1);
 
 			float3 diff = //diffuseColor * INV_PI ; //
-							DisneyDiffuse(dot(lightDir,H),NoL, NoV, Roughness) * diffuseColor;
+							DisneyDiffuse(dot(lightDir,H),NoL, NoV, roughness) * diffuseColor;
 
 			
 			float D =
 				//TrowbridgeReitzNormalDistribution(Roughness, dot(normal, H));
-				D_GGX(Roughness, dot( normal, H));
+				D_GGX(roughness, dot( normal, H));
 				
 
 			float3 F = F_Schlick(specColor, VoH);
 
 			float G = //Specular_G(Roughness, NoL, NoV);
 
-					Vis_Schlick(Roughness, NoV, NoL);
+					Vis_Schlick(roughness, NoV, NoL);
 			//SchlickGGXGeometricShadowingFunction(Roughness, NoL, NoV)/4/NoL/NoV;
 
 
@@ -278,8 +290,8 @@ namespace TestScreen.programs.test3
 			//float3 lightingModel = ((diffuseColor) + specularity + (unityIndirectSpecularity * 1));
 			//lightingModel *= NoL;
 
-			float3 lightingModel = ((diff  )  + specularity );
-			lightingModel *= NoL* _lightColor ;
+			float3 lightingModel = ((diff  )  + specularity  );
+			lightingModel *= NoL* _lightColor;
 
 			//加上gramma校准。。
 			float4 finalDiffuse = float4( pow( lightingModel,1/2.2) , 1);
@@ -289,6 +301,18 @@ namespace TestScreen.programs.test3
 		}
 	}
 
+	class FShader_Metallic : FShader
+	{
+		protected override void getRoughnessAndMetalic(v2f i,out float roughness, out float metallic)
+		{
 
+			var tex = tex2D(3, i.uv);
+
+
+			metallic = tex.r;
+			roughness =  1-( tex.g) * Roughness ;
+			
+		}
+	}
 
 }

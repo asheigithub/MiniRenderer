@@ -55,7 +55,7 @@ namespace TestScreen
 			//var texture = context3D.createTexture(474, 474);
 			//texture.uploadFromByteArray(SceneUtils.LoadBitmapData("../../../models/texs/th.jpg"), 0);
 			var texture = //MiniRender.textures.Texture.white; 
-						SceneUtils.MakeAndUploadTexture(context3D, "../../../models/texs/Robot_Color.png");
+						SceneUtils.MakeAndUploadTexture(context3D, "../../../models/texs/jian_2_d.png");
 			texture.AutoGenMipMap();
 			context3D.setTextureAt(0, texture);
 			context3D.setSamplerStateAt(0, Context3DWrapMode.REPEAT, Context3DTextureFilter.LINEAR, Context3DMipFilter.MIPLINEAR);
@@ -68,11 +68,17 @@ namespace TestScreen
 
 			//设置法线
 			var normalmap = //MiniRender.textures.Texture.planeNormal;
-				SceneUtils.MakeAndUploadTexture(context3D, "../../../models/texs/Robot_Normal.png");
+				SceneUtils.MakeAndUploadTexture(context3D, "../../../models/texs/jian_2_n.png");
 			normalmap.AutoGenMipMap();
 			context3D.setTextureAt(2, normalmap);
 			context3D.setSamplerStateAt(2, Context3DWrapMode.REPEAT, Context3DTextureFilter.LINEAR, Context3DMipFilter.MIPNEAREST);
 
+			//设置粗糙度与金属性贴图
+			var metallic = 
+				SceneUtils.MakeAndUploadTexture(context3D, "../../../models/texs/jian_2_m.png");
+			metallic.AutoGenMipMap();
+			context3D.setTextureAt(3, metallic);
+			context3D.setSamplerStateAt(3, Context3DWrapMode.REPEAT, Context3DTextureFilter.LINEAR, Context3DMipFilter.MIPNEAREST);
 
 			for (int k = 0; k < scene.MeshCount; k++)
 			{
@@ -99,7 +105,7 @@ namespace TestScreen
 					vertices.Add(
 						new Vertex()
 						{
-							vertex = new float3(vs[i].X, vs[i].Y, vs[i].Z) 
+							vertex = new float3(vs[i].X, vs[i].Y, vs[i].Z)
 						}
 						);
 				}
@@ -149,7 +155,7 @@ namespace TestScreen
 
 
 			var program3d = context3D.createProgram();
-			fShader = new programs.test3.FShader();
+			fShader = new programs.test3.FShader_Metallic();
 			program3d.upload(new programs.test3.VShader(), 
 				//new programs.test4.FShader_Bump()
 				fShader
@@ -258,14 +264,14 @@ namespace TestScreen
 			_ObjectToWorld = m;
 			_WorldToObject = m.getInvert();
 
-			Vector4 camerpos = new Vector4(0, 2, -3.3f, 1);
+			Vector4 camerpos = new Vector4(0, 1, -3.3f, 1);
 
 			Matrix3D mcamera = Matrix3D.Identity.appendRotation(angle, Vector3.Y_AXIS);
 			//camerpos = camerpos * mcamera;
 
 
 			var camera = Matrix3D.lookAtLH(camerpos.x, camerpos.y, camerpos.z,
-											0f, 1f, 0,
+											0f, 0f, 0,
 											0, 1, 0);
 
 			_MatrixV = camera;

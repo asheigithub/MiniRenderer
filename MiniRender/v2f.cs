@@ -36,5 +36,8 @@ namespace MiniRender
 		public float3 tSpace1;
 		public float3 tSpace2;
 
+
+		
+
 	}
 }
