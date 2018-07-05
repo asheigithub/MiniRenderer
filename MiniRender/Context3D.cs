@@ -351,7 +351,18 @@ namespace MiniRender
 			current_program3D.vertexShader.constants = programConstants;
 			current_program3D.fragementShader.constants = programConstants;
 
-			for (int i = 0; i < numTriangles; i++)
+            v2f[] v2fs = new v2f[currentVertexBuffer.vertices.Count];
+            #region 计算所有顶点
+            var vs = current_program3D.vertexShader;
+            for (int i = 0; i < v2fs.Length; i++)
+            {
+                vs.appdata = currentVertexBuffer.vertices[i];
+                v2fs[i] = vs.Execute();
+            }
+
+            #endregion
+
+            for (int i = 0; i < numTriangles; i++)
 			{
 				if (firstIndex + i * 3 > indexBuffer.data.Count - 3 )
 				{
@@ -367,22 +378,25 @@ namespace MiniRender
 				v2f v2 ;
 				v2f v3 ;
 
-				var vs = current_program3D.vertexShader;
+				//var vs = current_program3D.vertexShader;
 				{
-					vs.appdata = currentVertexBuffer.vertices[(int)idx1];
-					v1=vs.Execute();
+                    //vs.appdata = currentVertexBuffer.vertices[(int)idx1];
+                    //v1=vs.Execute();
+                    v1 = v2fs[(int)idx1];
 				}
 				{
-					vs.appdata = currentVertexBuffer.vertices[(int)idx2];
-					v2=vs.Execute();
-				}
+                    //vs.appdata = currentVertexBuffer.vertices[(int)idx2];
+                    //v2=vs.Execute();
+                    v2 = v2fs[(int)idx2];
+                }
 				{
-					vs.appdata = currentVertexBuffer.vertices[(int)idx3];
-					v3=vs.Execute();
+                    //vs.appdata = currentVertexBuffer.vertices[(int)idx3];
+                    //v3=vs.Execute();
+                    v3 = v2fs[(int)idx3];
 				}
 
-				#endregion
-
+                #endregion
+                
 				#region clip and cull
 				{
 					float3 xyz1 = v1.SV_POSITION.xyz / v1.SV_POSITION.w;
@@ -409,7 +423,7 @@ namespace MiniRender
 					//背面剔除
 					{
 						float area = Rasterizer.TriangleDoubleArea(xyz1.xy, xyz2.xy, xyz3.xy);
-
+                        
 						switch (_culling)
 						{
 							case Context3DTriangleFace.BACK:
@@ -576,25 +590,25 @@ namespace MiniRender
 				}
 
 
-				#region 线框
+                #region 线框
 
-				//var linepos1 = v1.SV_POSITION / v1.SV_POSITION.w;
-				//var linepos2 = v2.SV_POSITION / v2.SV_POSITION.w;
-				//var linepos3 = v3.SV_POSITION / v3.SV_POSITION.w;
+                //var linepos1 = v1.SV_POSITION / v1.SV_POSITION.w;
+                //var linepos2 = v2.SV_POSITION / v2.SV_POSITION.w;
+                //var linepos3 = v3.SV_POSITION / v3.SV_POSITION.w;
 
-				//Rasterizer.Line(currentRenderBuffer,
-				//	linepos1.xy, linepos2.xy, new float4(0, 0, 0, 1));
+                //Rasterizer.Line(currentRenderBuffer,
+                //    linepos1.xy, linepos2.xy, new float4(0, 0, 0, 1));
 
-				//Rasterizer.Line(currentRenderBuffer,
-				//	linepos2.xy, linepos3.xy, new float4(0, 0, 0, 1));
+                //Rasterizer.Line(currentRenderBuffer,
+                //    linepos2.xy, linepos3.xy, new float4(0, 0, 0, 1));
 
-				//Rasterizer.Line(currentRenderBuffer,
-				//	linepos3.xy, linepos1.xy, new float4(0, 0, 0, 1));
+                //Rasterizer.Line(currentRenderBuffer,
+                //    linepos3.xy, linepos1.xy, new float4(0, 0, 0, 1));
 
-				#endregion
+                #endregion
 
-				#region 显示经着色器计算后的法线和切线
-				{
+                #region 显示经着色器计算后的法线和切线
+                {
 					
 					//DrawDirLine(currentRenderBuffer, 0.2f, v1.worldPos, v1.worldNormal, new float4(0, 0, 1, 1));
 					//DrawDirLine(currentRenderBuffer, 0.2f, v1.worldPos, v1.worldTangent, new float4(1, 1, 0, 1));

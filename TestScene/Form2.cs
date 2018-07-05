@@ -40,7 +40,7 @@ namespace TestScreen
 
 			Assimp.AssimpContext importer = new Assimp.AssimpContext();
 			
-			scene= importer.ImportFile("../../../models/Robot2.fbx", 
+			scene= importer.ImportFile("../../../models/cube.fbx", 
 				Assimp.PostProcessSteps.MakeLeftHanded 
 				| Assimp.PostProcessSteps.Triangulate 
 				//| Assimp.PostProcessSteps.GenerateSmoothNormals
@@ -54,21 +54,21 @@ namespace TestScreen
 
 			//var texture = context3D.createTexture(474, 474);
 			//texture.uploadFromByteArray(SceneUtils.LoadBitmapData("../../../models/texs/th.jpg"), 0);
-			var texture = //MiniRender.textures.Texture.white; 
-						SceneUtils.MakeAndUploadTexture(context3D, "../../../models/texs/jian_2_d.png");
+			var texture = MiniRender.textures.Texture.white; 
+						//SceneUtils.MakeAndUploadTexture(context3D, "../../../models/texs/duckCM.bmp");
 			texture.AutoGenMipMap();
 			context3D.setTextureAt(0, texture);
 			context3D.setSamplerStateAt(0, Context3DWrapMode.REPEAT, Context3DTextureFilter.LINEAR, Context3DMipFilter.MIPLINEAR);
 
 			//设置matcap
-			var matcap = SceneUtils.MakeAndUploadTexture(context3D, "../../../models/texs/MaCrea_6.png");
+			var matcap = SceneUtils.MakeAndUploadTexture(context3D, "../../../models/texs/MaCrea_3.png");
 			matcap.AutoGenMipMap();
 			context3D.setTextureAt(1, matcap);
 			context3D.setSamplerStateAt(1, Context3DWrapMode.CLAMP, Context3DTextureFilter.LINEAR, Context3DMipFilter.MIPLINEAR);
 
 			//设置法线
-			var normalmap = //MiniRender.textures.Texture.planeNormal;
-				SceneUtils.MakeAndUploadTexture(context3D, "../../../models/texs/jian_2_n.png");
+			var normalmap = MiniRender.textures.Texture.planeNormal;
+				//SceneUtils.MakeAndUploadTexture(context3D, "../../../models/texs/Robot_Normal.png");
 			normalmap.AutoGenMipMap();
 			context3D.setTextureAt(2, normalmap);
 			context3D.setSamplerStateAt(2, Context3DWrapMode.REPEAT, Context3DTextureFilter.LINEAR, Context3DMipFilter.MIPNEAREST);
@@ -82,13 +82,9 @@ namespace TestScreen
 
 			for (int k = 0; k < scene.MeshCount; k++)
 			{
-
-
 				var mesh = scene.Meshes[k];
 				var vs = mesh.Vertices;
 				var indices = mesh.GetUnsignedIndices();
-
-				
 
 				var normals = mesh.Normals;
 				var tangents = mesh.Tangents;
@@ -105,7 +101,7 @@ namespace TestScreen
 					vertices.Add(
 						new Vertex()
 						{
-							vertex = new float3(vs[i].X, vs[i].Y, vs[i].Z)
+							vertex = new float3(vs[i].X, vs[i].Y, vs[i].Z) *3
 						}
 						);
 				}
@@ -156,9 +152,9 @@ namespace TestScreen
 
 			var program3d = context3D.createProgram();
 			fShader = new programs.test3.FShader_Metallic();
-			program3d.upload(new programs.test3.VShader(), 
-				//new programs.test4.FShader_Bump()
-				fShader
+			program3d.upload(new programs.test4.VShader_Bump(), 
+				new programs.test4.FShader_Bump()
+				//fShader
 				);
 			
 			context3D.setProgram(program3d);
@@ -182,7 +178,7 @@ namespace TestScreen
 		{
 			//fShader._Metallic = (Mathf.sin(time) + 1) / 2;
 			
-			context3D.setCulling(Context3DTriangleFace.BACK);
+			context3D.setCulling(Context3DTriangleFace.FRONT);
 			context3D.setDepthTest(true, Context3DCompareMode.LESS);
 
 			
@@ -264,7 +260,7 @@ namespace TestScreen
 			_ObjectToWorld = m;
 			_WorldToObject = m.getInvert();
 
-			Vector4 camerpos = new Vector4(0, 1, -3.3f, 1);
+			Vector4 camerpos = new Vector4(0, 0, -3.3f, 1);
 
 			Matrix3D mcamera = Matrix3D.Identity.appendRotation(angle, Vector3.Y_AXIS);
 			//camerpos = camerpos * mcamera;
@@ -352,13 +348,13 @@ namespace TestScreen
 		private void trackBar1_Scroll(object sender, EventArgs e)
 		{
 			fShader.Roughness = trackBar1.Value / 100.0f;
-			render();
+			//render();
 		}
 
 		private void trackBar2_Scroll(object sender, EventArgs e)
 		{
 			fShader._Metallic = trackBar2.Value / 100.0f;
-			render();
+			//render();
 		}
 	}
 }

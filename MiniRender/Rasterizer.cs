@@ -132,9 +132,10 @@ namespace MiniRender
 			TriangleEdge edge2 = new TriangleEdge() {  rtpos1 = pos2, rtpos2 = pos3, anotherrtpos = pos1 };
 			TriangleEdge edge3 = new TriangleEdge() {  rtpos1 = pos3, rtpos2 = pos1, anotherrtpos = pos2 };
 
-			edge1.checkedgeattribue();
-			edge2.checkedgeattribue();
-			edge3.checkedgeattribue();
+            //如果用定义判断，需要处理顶边和左边，这里不用定义判断，所以不需要执行了
+			//edge1.checkedgeattribue();
+			//edge2.checkedgeattribue();
+			//edge3.checkedgeattribue();
 
 
 			if (left < 0) left = 0;
@@ -322,23 +323,153 @@ namespace MiniRender
 
 		}
 
+        private static bool need_rasterize(float2 ap1,float2 ap2,float2 ap3,float2 pixelposition)
+        {
+            
+            //float2 p1 = new float2((int)(ap1.x + 0.5f), (int)(ap1.y + 0.5f));
+            //float2 p2 = new float2((int)(ap2.x + 0.5f), (int)(ap2.y + 0.5f));
+            //float2 p3 = new float2((int)(ap3.x + 0.5f), (int)(ap3.y + 0.5f));
+            float2 p1 = ap1;
+            float2 p2 = ap2;
+            float2 p3 = ap3;
 
+            if (p1.y == p2.y && p1.y == p3.y)
+                return false;
+
+            float2[] three = new float2[3];
+            three[0] = p1;
+            three[1] = p2;
+            three[2] = p3;
+            #region 按y排序
+            if (three[1].y < three[0].y)
+            {
+                var temp = three[0];
+                three[0] = three[1];
+                three[1] = temp;
+            }
+            if (three[2].y < three[0].y)
+            {
+                var temp = three[0];
+                three[0] = three[2];
+                three[2] = temp;
+            }
+
+            if (three[2].y < three[1].y)
+            {
+                var temp = three[1];
+                three[1] = three[2];
+                three[2] = temp;
+            }
+            #endregion
+
+            float px = pixelposition.x;
+            float py = pixelposition.y;
+
+            float dx = 0.0000001f;                                  //float为7位有效数字
+            float tx = px; while (tx > 1) { tx /= 10; dx *= 10; } //动态调节浮点数有效位
+            
+
+
+            if (pixelposition.y < three[1].y)
+            {
+                //上三角
+                //int sty = (int)Math.Floor(three[0].y );
+                //int edy = (int)Math.Floor(three[1].y );
+
+                float sty = three[0].y;
+                float edy = three[1].y;
+
+                if (py < sty || py >= edy)
+                    return false;
+
+                float x1 = three[0].x + (three[1].x - three[0].x) * (py - three[0].y) / (three[1].y - three[0].y);
+                float x2 = three[0].x + (three[2].x - three[0].x) * (py - three[0].y) / (three[2].y - three[0].y);
+
+                //int ix1 = (int)Math.Floor(x1);
+                //int ix2 = (int)Math.Floor(x2);
+
+                float ix1 = x1;
+                float ix2 = x2;
+
+
+                if (ix1 > ix2)
+                {
+                    var temp = ix1;
+                    ix1 = ix2;
+                    ix2 = temp;
+                }
+
+                if (px < ix1-dx|| px >= ix2+dx)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                //下三角
+
+                //int sty = (int)Math.Floor(three[1].y );
+                //int edy = (int)Math.Floor(three[2].y );
+
+                float sty = three[1].y;
+                float edy = three[2].y;
+
+                if (py < sty || py >= edy)
+                    return false;
+
+                float x1 = three[2].x + (three[1].x - three[2].x) * (py - three[2].y) / (three[1].y - three[2].y);
+                float x2 = three[2].x + (three[0].x - three[2].x) * (py - three[2].y) / (three[0].y - three[2].y);
+
+                //int ix1 = (int)Math.Floor(x1);
+                //int ix2 = (int)Math.Floor(x2);
+
+                float ix1 = x1;
+                float ix2 = x2;
+
+                if (ix1 > ix2)
+                {
+                    var temp = ix1;
+                    ix1 = ix2;
+                    ix2 = temp;
+                }
+
+                //if (px < ix1 || px >= ix2)
+                if( px <ix1 -dx  || px >=ix2 + dx)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+
+            }
+
+            
+        }
 
 
 		private static bool need_rasterize(TriangleEdge edge1, TriangleEdge edge2, TriangleEdge edge3,float2 pixelpositon,float area ,out float A,out float B,out float C )
 		{
-			
 			A = TriangleDoubleArea(edge2.rtpos1, edge2.rtpos2, pixelpositon);
 			B = TriangleDoubleArea(edge3.rtpos1, edge3.rtpos2, pixelpositon);
 			C = TriangleDoubleArea(edge1.rtpos1, edge1.rtpos2, pixelpositon);
-			
+
+            return need_rasterize(edge1.rtpos1, edge1.rtpos2, edge1.anotherrtpos,pixelpositon);
+
+            //按照定义判断，会由于浮点数出现错误的点和缝隙
+
 			if (area * A < 0 || area * B < 0 || area * C < 0)
 			{
 				//不在三角形内
 				return false;
 			}
-			//应用TOP-LEFT规则
-
+            //应用TOP-LEFT规则
+            
 			if (A == 0)
 			{
 				if (B == 0)

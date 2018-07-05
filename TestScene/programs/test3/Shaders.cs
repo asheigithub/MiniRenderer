@@ -198,7 +198,7 @@ namespace TestScreen.programs.test3
 			return mix(x, y, t);
 		}
 
-		private float3 _lightColor = float3(8,8,8);
+		private float3 _lightColor = float3(2,2,2);
 		private float3 albendo = float3(1, 1, 1);
 		private float3 _SpecularColor = float3(1, 1, 1);
 
